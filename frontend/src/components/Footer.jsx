@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { MapPin, Phone, Mail } from "lucide-react";
+import { Phone, Mail } from "lucide-react";
 
 function Footer() {
   return (
@@ -39,17 +39,23 @@ function Footer() {
             Contact
           </h4>
           <ul className="space-y-3">
-            <li className="flex items-start gap-3">
-              <MapPin size={18} className="mt-0.5 shrink-0 text-gold-500" />
-              Phnom Penh, Cambodia
+            <li>
+              <a href="tel:+85510679527" className="flex items-center gap-3 hover:text-gold-400">
+                <Phone size={18} className="shrink-0 text-gold-500" />
+                010 679 527
+              </a>
+            </li>
+            <li>
+              <a href="mailto:cpanha683@gmail.com" className="flex items-center gap-3 break-all hover:text-gold-400">
+                <Mail size={18} className="shrink-0 text-gold-500" />
+                cpanha683@gmail.com
+              </a>
             </li>
             <li className="flex items-center gap-3">
-              <Phone size={18} className="shrink-0 text-gold-500" />
-              +855 12 345 678
-            </li>
-            <li className="flex items-center gap-3">
-              <Mail size={18} className="shrink-0 text-gold-500" />
-              info@grandhotel.com
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" className="shrink-0 text-gold-500" aria-hidden="true">
+                <path d="M13.5 21v-7.5h2.5l.4-3h-2.9V8.6c0-.9.3-1.5 1.5-1.5h1.5V4.4c-.3 0-1.2-.1-2.2-.1-2.2 0-3.7 1.3-3.7 3.8v2.4H8v3h2.6V21h2.9z" />
+              </svg>
+              Bunthoeun Chanpanha
             </li>
           </ul>
         </div>
