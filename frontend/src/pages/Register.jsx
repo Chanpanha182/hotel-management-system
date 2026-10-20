@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import AuthLayout from "../components/AuthLayout";
 
 function Register() {
   const navigate = useNavigate();
@@ -68,32 +69,22 @@ function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-6 py-12">
-
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
-
-        <div className="text-center mb-8">
-
-          <h1 className="text-3xl font-bold text-gray-900">
-            Create Account
-          </h1>
-
-          <p className="text-gray-500 mt-2">
-            Create your hotel account
-          </p>
-
-        </div>
+    <AuthLayout
+      title="Create an account"
+      subtitle="Join us and book your stay in minutes."
+      image="https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1400&q=80"
+    >
 
         {/* Success */}
         {message && (
-          <div className="bg-green-100 text-green-700 p-3 rounded-lg mb-5">
+          <div className="bg-green-50 text-green-700 ring-1 ring-green-100 p-3 rounded-xl mb-5 text-sm">
             {message}
           </div>
         )}
 
         {/* Error */}
         {error && (
-          <div className="bg-red-100 text-red-700 p-3 rounded-lg mb-5">
+          <div className="bg-red-50 text-red-700 ring-1 ring-red-100 p-3 rounded-xl mb-5 text-sm">
             {error}
           </div>
         )}
@@ -101,7 +92,7 @@ function Register() {
         <form onSubmit={handleSubmit}>
 
           {/* Name */}
-          <label className="block text-sm font-medium mb-2">
+          <label className="mb-2 block text-sm font-medium text-gray-700">
             Full Name
           </label>
 
@@ -112,11 +103,11 @@ function Register() {
             onChange={handleChange}
             placeholder="Enter your name"
             required
-            className="w-full border rounded-lg px-4 py-3 mb-5 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="field mb-5"
           />
 
           {/* Email */}
-          <label className="block text-sm font-medium mb-2">
+          <label className="mb-2 block text-sm font-medium text-gray-700">
             Email
           </label>
 
@@ -127,11 +118,11 @@ function Register() {
             onChange={handleChange}
             placeholder="Enter your email"
             required
-            className="w-full border rounded-lg px-4 py-3 mb-5 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="field mb-5"
           />
 
           {/* Phone */}
-          <label className="block text-sm font-medium mb-2">
+          <label className="mb-2 block text-sm font-medium text-gray-700">
             Phone
           </label>
 
@@ -141,11 +132,11 @@ function Register() {
             value={formData.phone}
             onChange={handleChange}
             placeholder="Enter your phone number"
-            className="w-full border rounded-lg px-4 py-3 mb-5 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="field mb-5"
           />
 
           {/* Password */}
-          <label className="block text-sm font-medium mb-2">
+          <label className="mb-2 block text-sm font-medium text-gray-700">
             Password
           </label>
 
@@ -157,14 +148,14 @@ function Register() {
             placeholder="Enter your password"
             required
             minLength="6"
-            className="w-full border rounded-lg px-4 py-3 mb-6 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="field mb-6"
           />
 
           {/* Submit */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400"
+            className="btn-gold w-full py-3.5"
           >
             {loading ? "Creating Account..." : "Create Account"}
           </button>
@@ -177,16 +168,14 @@ function Register() {
 
           <Link
             to="/login"
-            className="text-blue-600 font-semibold hover:underline"
+            className="font-semibold text-gold-600 hover:underline"
           >
             Login
           </Link>
 
         </p>
 
-      </div>
-
-    </div>
+    </AuthLayout>
   );
 }
 

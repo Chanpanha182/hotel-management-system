@@ -1,205 +1,298 @@
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  Wifi,
+  UtensilsCrossed,
+  Waves,
+  Car,
+  Sparkles,
+  ConciergeBell,
+  CalendarDays,
+  Users,
+  Search,
+} from "lucide-react";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+import RoomCard from "../components/RoomCard";
+
+const today = new Date().toISOString().split("T")[0];
+
+const amenities = [
+  { icon: Wifi, title: "Free Wi-Fi", text: "Fast, reliable internet in every room and public area." },
+  { icon: UtensilsCrossed, title: "Restaurant & Bar", text: "Local and international dishes from our chefs." },
+  { icon: Waves, title: "Swimming Pool", text: "Relax by the pool with a cool drink in hand." },
+  { icon: Sparkles, title: "Spa & Wellness", text: "Massages and treatments to help you unwind." },
+  { icon: Car, title: "Airport Transfer", text: "Comfortable pickup and drop-off on request." },
+  { icon: ConciergeBell, title: "24/7 Reception", text: "Our team is here for you, day and night." },
+];
 
 function Home() {
+  const navigate = useNavigate();
+
+  const [rooms, setRooms] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const [search, setSearch] = useState({
+    checkIn: "",
+    checkOut: "",
+    guests: "1",
+  });
+
+  useEffect(() => {
+    fetch(import.meta.env.VITE_API_URL + "/api/rooms")
+      .then((response) => response.json())
+      .then((data) => setRooms(data.data || []))
+      .catch((error) => console.error(error))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+
+    const params = new URLSearchParams({ guests: search.guests });
+    if (search.checkIn) params.set("checkIn", search.checkIn);
+    if (search.checkOut) params.set("checkOut", search.checkOut);
+
+    navigate(`/rooms?${params.toString()}`);
+  };
+
+  const featuredRooms = rooms
+    .filter((room) => room.status !== "maintenance")
+    .slice(0, 3);
+
   return (
     <div className="min-h-screen">
 
+      <Navbar transparent />
+
       {/* Hero */}
       <section
-        className="relative min-h-screen bg-cover bg-center"
+        className="relative flex min-h-[92vh] items-center bg-cover bg-center"
         style={{
           backgroundImage:
             "url('https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=2000&q=80')",
         }}
       >
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/45 to-black/70"></div>
 
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-black/50"></div>
+        <div className="relative z-10 mx-auto w-full max-w-7xl px-6 pt-24 pb-40 text-center text-white">
+          <p className="mb-6 text-xs font-semibold uppercase tracking-[0.4em] text-gold-300">
+            Welcome to Grand Hotel
+          </p>
 
-        <Navbar />
+          <h1 className="mx-auto max-w-4xl text-5xl font-semibold leading-tight md:text-7xl">
+            Where Luxury Meets
+            <span className="block italic text-gold-300">Comfort</span>
+          </h1>
 
-        {/* Hero Content */}
-        <div className="relative z-10 min-h-screen flex items-center justify-center text-center text-white px-6">
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-200 md:text-xl">
+            Discover an unforgettable stay with elegant rooms,
+            exceptional service and world-class facilities.
+          </p>
 
-          <div className="max-w-3xl">
-
-            <p className="uppercase tracking-[5px] text-sm mb-5">
-              Welcome to Grand Hotel
-            </p>
-
-            <h1 className="text-5xl md:text-7xl font-bold mb-6">
-              Experience Luxury & Comfort
-            </h1>
-
-            <p className="text-lg md:text-xl text-gray-200 mb-8">
-              Discover an unforgettable stay with elegant rooms,
-              exceptional service, and world-class facilities.
-            </p>
-
-            <Link
-              to="/rooms"
-              className="inline-block bg-yellow-500 text-black px-8 py-4 rounded-full font-semibold hover:bg-yellow-400 transition"
-            >
-              Book Your Stay
+          <div className="mt-10 flex flex-wrap justify-center gap-4">
+            <Link to="/rooms" className="btn-gold px-8 py-4">
+              Explore Rooms
             </Link>
-
+            <a
+              href="#amenities"
+              className="inline-flex items-center rounded-full border border-white/60 px-8 py-4 font-semibold text-white transition hover:bg-white hover:text-ink"
+            >
+              Our Amenities
+            </a>
           </div>
-
         </div>
-
       </section>
 
-      {/* Search Section */}
-      <section className="relative -mt-16 z-20 px-6">
+      {/* Search */}
+      <section className="relative z-20 -mt-24 px-6">
+        <form
+          onSubmit={handleSearch}
+          className="mx-auto grid max-w-5xl gap-4 rounded-3xl bg-white p-6 shadow-2xl ring-1 ring-black/5 md:grid-cols-[1fr_1fr_1fr_auto] md:p-8"
+        >
+          <label className="block">
+            <span className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
+              <CalendarDays size={14} className="text-gold-600" />
+              Check-in
+            </span>
+            <input
+              type="date"
+              min={today}
+              value={search.checkIn}
+              onChange={(e) => setSearch({ ...search, checkIn: e.target.value })}
+              className="field"
+            />
+          </label>
 
-        <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl p-6">
+          <label className="block">
+            <span className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
+              <CalendarDays size={14} className="text-gold-600" />
+              Check-out
+            </span>
+            <input
+              type="date"
+              min={search.checkIn || today}
+              value={search.checkOut}
+              onChange={(e) => setSearch({ ...search, checkOut: e.target.value })}
+              className="field"
+            />
+          </label>
 
-          <h2 className="text-2xl font-bold mb-5">
-            Find Your Perfect Room
-          </h2>
+          <label className="block">
+            <span className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
+              <Users size={14} className="text-gold-600" />
+              Guests
+            </span>
+            <select
+              value={search.guests}
+              onChange={(e) => setSearch({ ...search, guests: e.target.value })}
+              className="field"
+            >
+              <option value="1">1 Guest</option>
+              <option value="2">2 Guests</option>
+              <option value="3">3 Guests</option>
+              <option value="4">4+ Guests</option>
+            </select>
+          </label>
 
-          <div className="grid md:grid-cols-4 gap-4">
+          <div className="flex items-end">
+            <button type="submit" className="btn-dark w-full py-3.5 md:w-auto md:px-8">
+              <Search size={18} />
+              Search
+            </button>
+          </div>
+        </form>
+      </section>
 
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Check-in
-              </label>
-
-              <input
-                type="date"
-                className="w-full border rounded-lg px-4 py-3"
-              />
+      {/* About */}
+      <section className="px-6 py-24">
+        <div className="mx-auto grid max-w-7xl items-center gap-16 md:grid-cols-2">
+          <div className="relative">
+            <img
+              src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80"
+              alt="Hotel lobby"
+              className="h-[460px] w-full rounded-3xl object-cover shadow-xl"
+            />
+            <div className="absolute -bottom-8 -right-4 hidden rounded-3xl bg-ink p-6 text-white shadow-xl md:block">
+              <ConciergeBell size={26} className="text-gold-400" />
+              <p className="mt-3 font-display text-2xl font-semibold">Book Direct</p>
+              <p className="text-sm text-gray-400">Instant confirmation online</p>
             </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Check-out
-              </label>
-
-              <input
-                type="date"
-                className="w-full border rounded-lg px-4 py-3"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Guests
-              </label>
-
-              <select className="w-full border rounded-lg px-4 py-3">
-                <option>1 Guest</option>
-                <option>2 Guests</option>
-                <option>3 Guests</option>
-                <option>4 Guests</option>
-              </select>
-            </div>
-
-            <div className="flex items-end">
-
-              <button className="w-full bg-black text-white rounded-lg px-4 py-3 hover:bg-gray-800">
-                Search Rooms
-              </button>
-
-            </div>
-
           </div>
 
-        </div>
+          <div>
+            <p className="eyebrow">About Us</p>
+            <h2 className="mt-4 text-4xl font-semibold leading-tight text-ink md:text-5xl">
+              A peaceful place to rest, right in the heart of the city
+            </h2>
+            <p className="mt-6 leading-relaxed text-gray-600">
+              At Grand Hotel, every detail is designed for your comfort —
+              from soft beds and modern rooms to friendly staff who are
+              always ready to help. Whether you travel for business or
+              holiday, you will feel at home with us.
+            </p>
 
+            <div className="mt-10 grid grid-cols-3 gap-6 border-t border-gray-200 pt-8">
+              <div>
+                <p className="font-display text-4xl font-semibold text-gold-600">{rooms.length || "—"}</p>
+                <p className="mt-1 text-sm text-gray-500">Rooms & Suites</p>
+              </div>
+              <div>
+                <p className="font-display text-4xl font-semibold text-gold-600">24/7</p>
+                <p className="mt-1 text-sm text-gray-500">Guest Service</p>
+              </div>
+              <div>
+                <p className="font-display text-4xl font-semibold text-gold-600">100%</p>
+                <p className="mt-1 text-sm text-gray-500">Secure Booking</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* Featured Rooms */}
-      <section className="py-24 px-6">
-
-        <div className="max-w-7xl mx-auto">
-
-          <div className="text-center mb-12">
-
-            <p className="text-yellow-600 uppercase tracking-widest">
-              Stay With Us
-            </p>
-
-            <h2 className="text-4xl font-bold mt-3">
-              Featured Rooms
-            </h2>
-
+      <section className="bg-white px-6 py-24">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-14 flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
+            <div>
+              <p className="eyebrow">Stay With Us</p>
+              <h2 className="mt-4 text-4xl font-semibold text-ink md:text-5xl">
+                Featured Rooms
+              </h2>
+            </div>
+            <Link to="/rooms" className="btn-dark">
+              View All Rooms
+            </Link>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-
-            <RoomCard
-              image="https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=1000&q=80"
-              name="Deluxe Room"
-              price="120"
-            />
-
-            <RoomCard
-              image="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1000&q=80"
-              name="Executive Suite"
-              price="180"
-            />
-
-            <RoomCard
-              image="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1000&q=80"
-              name="Luxury Suite"
-              price="250"
-            />
-
-          </div>
-
+          {loading ? (
+            <div className="grid gap-8 md:grid-cols-3">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="h-[440px] animate-pulse rounded-3xl bg-gray-100"></div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+              {featuredRooms.map((room) => (
+                <RoomCard key={room.id} room={room} />
+              ))}
+            </div>
+          )}
         </div>
-
       </section>
 
-    </div>
-  );
-}
+      {/* Amenities */}
+      <section id="amenities" className="px-6 py-24">
+        <div className="mx-auto max-w-7xl">
+          <div className="mx-auto mb-14 max-w-2xl text-center">
+            <p className="eyebrow">Hotel Facilities</p>
+            <h2 className="mt-4 text-4xl font-semibold text-ink md:text-5xl">
+              Everything for a perfect stay
+            </h2>
+          </div>
 
-function RoomCard({ image, name, price }) {
-
-  return (
-    <div className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition">
-
-      <img
-        src={image}
-        alt={name}
-        className="w-full h-64 object-cover"
-      />
-
-      <div className="p-6">
-
-        <h3 className="text-2xl font-bold">
-          {name}
-        </h3>
-
-        <p className="text-gray-500 mt-2">
-          Comfortable and elegant accommodation.
-        </p>
-
-        <div className="flex items-center justify-between mt-5">
-
-          <p>
-            <span className="text-2xl font-bold">
-              ${price}
-            </span>
-            <span className="text-gray-500">
-              /night
-            </span>
-          </p>
-
-          <Link
-            to="/rooms"
-            className="bg-black text-white px-5 py-2 rounded-full"
-          >
-            View Room
-          </Link>
-
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {amenities.map(({ icon: Icon, title, text }) => (
+              <div
+                key={title}
+                className="rounded-3xl bg-white p-8 ring-1 ring-black/5 transition hover:shadow-lg"
+              >
+                <span className="grid h-14 w-14 place-items-center rounded-2xl bg-gold-50 text-gold-600">
+                  <Icon size={26} />
+                </span>
+                <h3 className="mt-6 text-xl font-semibold text-ink">{title}</h3>
+                <p className="mt-2 text-gray-500">{text}</p>
+              </div>
+            ))}
+          </div>
         </div>
+      </section>
 
-      </div>
+      {/* Call to action */}
+      <section className="px-6 pb-24">
+        <div
+          className="relative mx-auto max-w-7xl overflow-hidden rounded-[2rem] bg-cover bg-center px-8 py-20 text-center text-white"
+          style={{
+            backgroundImage:
+              "url('https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=2000&q=80')",
+          }}
+        >
+          <div className="absolute inset-0 bg-ink/70"></div>
+          <div className="relative">
+            <h2 className="text-4xl font-semibold md:text-5xl">
+              Ready for your next stay?
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl text-gray-200">
+              Book directly with us and pay safely online with ABA PayWay.
+            </p>
+            <Link to="/rooms" className="btn-gold mt-8 px-8 py-4">
+              Book Your Room
+            </Link>
+          </div>
+        </div>
+      </section>
 
+      <Footer />
     </div>
   );
 }

@@ -16,7 +16,7 @@ function BookingConfirmation() {
 
   if (!booking) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-6">
+      <div className="min-h-screen flex items-center justify-center px-6">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-3">
             Booking Information Not Found
@@ -39,7 +39,7 @@ function BookingConfirmation() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <main className="max-w-4xl mx-auto px-6 py-12">
 
         {/* Success Header */}

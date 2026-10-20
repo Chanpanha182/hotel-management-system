@@ -7,6 +7,7 @@ import {
   XCircle,
 } from "lucide-react";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 function MyBookings() {
   const navigate = useNavigate();
@@ -373,7 +374,7 @@ if (payment.payment_status === "pending") {
   // ========================================
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
 
       <Navbar />
 
@@ -738,6 +739,8 @@ if (payment.payment_status === "pending") {
           )}
 
       </main>
+
+      <Footer />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import AuthLayout from "../components/AuthLayout";
 
 function Login() {
   const navigate = useNavigate();
@@ -61,25 +62,15 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-6">
-
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
-
-        <div className="text-center mb-8">
-
-          <h1 className="text-3xl font-bold">
-            Welcome Back
-          </h1>
-
-          <p className="text-gray-500 mt-2">
-            Login to your hotel account
-          </p>
-
-        </div>
+    <AuthLayout
+      title="Welcome back"
+      subtitle="Log in to manage your bookings."
+      image="https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=1400&q=80"
+    >
 
         {/* Error */}
         {error && (
-          <div className="bg-red-100 text-red-700 p-3 rounded-lg mb-5">
+          <div className="bg-red-50 text-red-700 ring-1 ring-red-100 p-3 rounded-xl mb-5 text-sm">
             {error}
           </div>
         )}
@@ -87,7 +78,7 @@ function Login() {
         <form onSubmit={handleSubmit}>
 
           {/* Email */}
-          <label className="block text-sm font-medium mb-2">
+          <label className="mb-2 block text-sm font-medium text-gray-700">
             Email
           </label>
 
@@ -98,11 +89,11 @@ function Login() {
             onChange={handleChange}
             placeholder="Enter your email"
             required
-            className="w-full border rounded-lg px-4 py-3 mb-5 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="field mb-5"
           />
 
           {/* Password */}
-          <label className="block text-sm font-medium mb-2">
+          <label className="mb-2 block text-sm font-medium text-gray-700">
             Password
           </label>
 
@@ -113,14 +104,14 @@ function Login() {
             onChange={handleChange}
             placeholder="Enter your password"
             required
-            className="w-full border rounded-lg px-4 py-3 mb-6 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="field mb-6"
           />
 
           {/* Login */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400"
+            className="btn-gold w-full py-3.5"
           >
             {loading ? "Logging in..." : "Login"}
           </button>
@@ -133,16 +124,14 @@ function Login() {
 
           <Link
             to="/register"
-            className="text-blue-600 font-semibold hover:underline"
+            className="font-semibold text-gold-600 hover:underline"
           >
             Register
           </Link>
 
         </p>
 
-      </div>
-
-    </div>
+    </AuthLayout>
   );
 }
 

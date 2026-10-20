@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import {
   ArrowLeft,
   BedDouble,
@@ -8,17 +8,19 @@ import {
   Users,
 } from "lucide-react";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 function RoomDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const [room, setRoom] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const [checkIn, setCheckIn] = useState("");
-  const [checkOut, setCheckOut] = useState("");
-  const [guests, setGuests] = useState(1);
+  const [checkIn, setCheckIn] = useState(searchParams.get("checkIn") || "");
+  const [checkOut, setCheckOut] = useState(searchParams.get("checkOut") || "");
+  const [guests, setGuests] = useState(Number(searchParams.get("guests")) || 1);
   const [specialRequest, setSpecialRequest] = useState("");
 
   const [error, setError] = useState("");
@@ -169,7 +171,7 @@ function RoomDetails() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen">
         <Navbar />
 
         <div className="flex justify-center items-center h-96">
@@ -187,7 +189,7 @@ function RoomDetails() {
 
   if (!room) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen">
         <Navbar />
 
         <div className="text-center py-20">
@@ -215,7 +217,7 @@ function RoomDetails() {
     : [];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
 
       <Navbar />
 
@@ -583,6 +585,8 @@ function RoomDetails() {
         </div>
 
       </main>
+
+      <Footer />
 
     </div>
   );

@@ -1,20 +1,22 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
+import { SlidersHorizontal, RotateCcw } from "lucide-react";
 import Navbar from "../components/Navbar";
-import {
-  Users,
-  BedDouble,
-  Maximize,
-  Search,
-} from "lucide-react";
+import Footer from "../components/Footer";
+import RoomCard from "../components/RoomCard";
+
+const ROOM_TYPES = ["Standard", "Deluxe", "Suite", "Luxury", "Family", "Presidential"];
 
 function Rooms() {
+  const [searchParams] = useSearchParams();
+
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   const [roomType, setRoomType] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
+  const [guests, setGuests] = useState(searchParams.get("guests") || "");
 
   useEffect(() => {
     fetch(import.meta.env.VITE_API_URL + "/api/rooms")
@@ -31,7 +33,7 @@ function Rooms() {
       })
       .catch((error) => {
         console.error(error);
-        setError("Unable to load rooms.");
+        setError("Unable to load rooms. Please try again in a moment.");
         setLoading(false);
       });
   }, []);
@@ -43,95 +45,110 @@ function Rooms() {
     const priceMatch =
       maxPrice === "" || Number(room.price) <= Number(maxPrice);
 
-    return typeMatch && priceMatch;
+    const guestMatch =
+      guests === "" || Number(room.capacity) >= Number(guests);
+
+    return typeMatch && priceMatch && guestMatch;
   });
 
+  // Carry the dates from the home page search into the room page
+  const carry = new URLSearchParams();
+  ["checkIn", "checkOut", "guests"].forEach((key) => {
+    const value = key === "guests" ? guests : searchParams.get(key);
+    if (value) carry.set(key, value);
+  });
+  const carryString = carry.toString() ? `?${carry.toString()}` : "";
+
+  const hasFilters = roomType || maxPrice || guests;
+
+  const resetFilters = () => {
+    setRoomType("");
+    setMaxPrice("");
+    setGuests("");
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
 
       <Navbar />
 
       {/* Header */}
-      <section className="bg-gray-900 text-white py-20">
-        <div className="max-w-7xl mx-auto px-6">
+      <section
+        className="relative bg-cover bg-center"
+        style={{
+          backgroundImage:
+            "url('https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=2000&q=80')",
+        }}
+      >
+        <div className="absolute inset-0 bg-ink/70"></div>
 
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            Our Rooms
+        <div className="relative max-w-7xl mx-auto px-6 py-24 text-white">
+          <p className="eyebrow text-gold-300">Accommodation</p>
+
+          <h1 className="mt-4 text-5xl md:text-6xl font-semibold">
+            Rooms & Suites
           </h1>
 
-          <p className="text-gray-300 max-w-2xl">
+          <p className="mt-4 max-w-2xl text-lg text-gray-300">
             Choose the perfect room for your stay and enjoy
-            comfort, quality, and excellent service.
+            comfort, quality and excellent service.
           </p>
-
         </div>
       </section>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-6 py-12">
+      <main className="max-w-7xl mx-auto px-6 py-14">
 
         {/* Filters */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-10">
+        <div className="mb-12 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-black/5">
 
-          <div className="flex items-center gap-2 mb-5">
-            <Search size={20} className="text-blue-600" />
+          <div className="mb-5 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <SlidersHorizontal size={18} className="text-gold-600" />
+              <h2 className="font-sans text-base font-semibold text-ink">
+                Filter Rooms
+              </h2>
+            </div>
 
-            <h2 className="text-xl font-bold">
-              Find Your Room
-            </h2>
+            {hasFilters && (
+              <button
+                onClick={resetFilters}
+                className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gold-600"
+              >
+                <RotateCcw size={14} />
+                Reset
+              </button>
+            )}
           </div>
 
-          <div className="grid md:grid-cols-2 gap-5">
+          <div className="grid gap-4 md:grid-cols-3">
 
-            {/* Room Type */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
+            <label className="block">
+              <span className="mb-2 block text-xs font-semibold uppercase tracking-wider text-gray-500">
                 Room Type
-              </label>
-
+              </span>
               <select
                 value={roomType}
                 onChange={(e) => setRoomType(e.target.value)}
-                className="w-full border rounded-lg px-4 py-3"
+                className="field"
               >
                 <option value="">All Room Types</option>
-
-                <option value="Standard">
-                  Standard
-                </option>
-
-                <option value="Deluxe">
-                  Deluxe
-                </option>
-
-                <option value="Suite">
-                  Suite
-                </option>
-
-                <option value="Luxury">
-                  Luxury
-                </option>
-
-                <option value="Family">
-                  Family
-                </option>
-
-                <option value="Presidential">
-                  Presidential
-                </option>
+                {ROOM_TYPES.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
               </select>
-            </div>
+            </label>
 
-            {/* Maximum Price */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
+            <label className="block">
+              <span className="mb-2 block text-xs font-semibold uppercase tracking-wider text-gray-500">
                 Maximum Price
-              </label>
-
+              </span>
               <select
                 value={maxPrice}
                 onChange={(e) => setMaxPrice(e.target.value)}
-                className="w-full border rounded-lg px-4 py-3"
+                className="field"
               >
                 <option value="">Any Price</option>
                 <option value="100">$100 or less</option>
@@ -140,158 +157,81 @@ function Rooms() {
                 <option value="300">$300 or less</option>
                 <option value="500">$500 or less</option>
               </select>
-            </div>
+            </label>
+
+            <label className="block">
+              <span className="mb-2 block text-xs font-semibold uppercase tracking-wider text-gray-500">
+                Guests
+              </span>
+              <select
+                value={guests}
+                onChange={(e) => setGuests(e.target.value)}
+                className="field"
+              >
+                <option value="">Any</option>
+                <option value="1">1 Guest</option>
+                <option value="2">2 Guests</option>
+                <option value="3">3 Guests</option>
+                <option value="4">4+ Guests</option>
+              </select>
+            </label>
 
           </div>
         </div>
 
+        {/* Count */}
+        {!loading && !error && (
+          <p className="mb-6 text-sm text-gray-500">
+            Showing <span className="font-semibold text-ink">{filteredRooms.length}</span>{" "}
+            {filteredRooms.length === 1 ? "room" : "rooms"}
+          </p>
+        )}
+
         {/* Loading */}
         {loading && (
-          <div className="text-center py-20">
-            <p className="text-gray-500 text-lg">
-              Loading rooms...
-            </p>
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="h-[440px] animate-pulse rounded-3xl bg-gray-200/70"></div>
+            ))}
           </div>
         )}
 
         {/* Error */}
         {error && (
-          <div className="bg-red-100 text-red-700 p-4 rounded-lg mb-8">
+          <div className="rounded-2xl bg-red-50 p-5 text-red-700 ring-1 ring-red-100">
             {error}
           </div>
         )}
 
         {/* No Rooms */}
         {!loading && !error && filteredRooms.length === 0 && (
-          <div className="text-center py-20">
-            <h2 className="text-2xl font-bold mb-2">
+          <div className="rounded-3xl bg-white py-20 text-center ring-1 ring-black/5">
+            <h2 className="text-3xl font-semibold text-ink">
               No rooms found
             </h2>
 
-            <p className="text-gray-500">
+            <p className="mt-2 text-gray-500">
               Try changing your filters.
             </p>
+
+            <button onClick={resetFilters} className="btn-gold mt-6">
+              Show All Rooms
+            </button>
           </div>
         )}
 
         {/* Rooms */}
         {!loading && !error && filteredRooms.length > 0 && (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {filteredRooms.map((room) => (
-
-              <div
-                key={room.id}
-                className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition"
-              >
-
-                {/* Image */}
-                <img
-                  src={room.image}
-                  alt={room.room_name}
-                  className="w-full h-56 object-cover"
-                />
-
-                {/* Content */}
-                <div className="p-6">
-
-                  <div className="flex justify-between items-start mb-3">
-
-                    <div>
-                      <p className="text-blue-600 text-sm font-medium">
-                        {room.room_type}
-                      </p>
-
-                      <h3 className="text-2xl font-bold">
-                        {room.room_name}
-                      </h3>
-                    </div>
-
-                    <div className="text-right">
-                      <p className="text-xl font-bold text-blue-600">
-                        ${room.price}
-                      </p>
-
-                      <p className="text-xs text-gray-500">
-                        / night
-                      </p>
-                    </div>
-
-                  </div>
-
-                  {/* Room Info */}
-                  <div className="grid grid-cols-3 gap-3 py-4 border-y my-4">
-
-                    <div className="text-center">
-                      <Users
-                        size={18}
-                        className="mx-auto text-blue-600 mb-1"
-                      />
-
-                      <p className="text-xs text-gray-500">
-                        Guests
-                      </p>
-
-                      <p className="text-sm font-medium">
-                        {room.capacity}
-                      </p>
-                    </div>
-
-                    <div className="text-center">
-                      <BedDouble
-                        size={18}
-                        className="mx-auto text-blue-600 mb-1"
-                      />
-
-                      <p className="text-xs text-gray-500">
-                        Bed
-                      </p>
-
-                      <p className="text-sm font-medium">
-                        {room.bed_type}
-                      </p>
-                    </div>
-
-                    <div className="text-center">
-                      <Maximize
-                        size={18}
-                        className="mx-auto text-blue-600 mb-1"
-                      />
-
-                      <p className="text-xs text-gray-500">
-                        Size
-                      </p>
-
-                      <p className="text-sm font-medium">
-                        {room.room_size}
-                      </p>
-                    </div>
-
-                  </div>
-
-                  {/* Description */}
-                  <p className="text-gray-600 text-sm line-clamp-2 mb-5">
-                    {room.description}
-                  </p>
-
-                  {/* Button */}
-                  <Link
-                    to={`/rooms/${room.id}`}
-                    className="block text-center bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
-                  >
-                    View Details
-                  </Link>
-
-                </div>
-
-              </div>
-
+              <RoomCard key={room.id} room={room} search={carryString} />
             ))}
-
           </div>
         )}
 
       </main>
+
+      <Footer />
     </div>
   );
 }

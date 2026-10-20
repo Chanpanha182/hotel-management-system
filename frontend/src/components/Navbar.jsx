@@ -1,20 +1,23 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Menu, X, LogOut, User } from "lucide-react";
 
-function Navbar() {
+// transparent: sits over a hero image until the page is scrolled
+function Navbar({ transparent = false }) {
   const navigate = useNavigate();
 
   const [isOpen, setIsOpen] = useState(false);
-  const [user, setUser] = useState(null);
-
   // Check login status
-  useEffect(() => {
+  const [user, setUser] = useState(() => {
     const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
+  const [scrolled, setScrolled] = useState(() => window.scrollY > 40);
 
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   // Logout
@@ -28,78 +31,99 @@ function Navbar() {
     navigate("/");
   };
 
+  const solid = !transparent || scrolled || isOpen;
+
+  const linkClass = ({ isActive }) =>
+    `text-sm font-medium transition ${
+      isActive
+        ? "text-gold-500"
+        : solid
+        ? "text-gray-700 hover:text-gold-600"
+        : "text-white/90 hover:text-white"
+    }`;
+
+  const links = [
+    { to: "/", label: "Home", end: true },
+    { to: "/rooms", label: "Rooms" },
+    ...(user ? [{ to: "/my-bookings", label: "My Bookings" }] : []),
+    ...(user?.role === "admin" ? [{ to: "/admin", label: "Admin" }] : []),
+  ];
+
   return (
-    <nav className="relative z-50 bg-white shadow-sm">
+    <nav
+      className={`${transparent ? "fixed" : "sticky"} top-0 inset-x-0 z-50 transition-all duration-300 ${
+        solid
+          ? "bg-white/95 backdrop-blur shadow-sm"
+          : "bg-transparent"
+      }`}
+    >
       <div className="max-w-7xl mx-auto px-6">
 
         <div className="flex items-center justify-between h-20">
 
           {/* Logo */}
-          <Link
-            to="/"
-            className="text-2xl font-bold text-blue-600"
-          >
-            Grand Hotel
+          <Link to="/" className="flex items-center gap-3">
+            <span className="grid h-10 w-10 place-items-center rounded-full border border-gold-500 font-display text-lg font-bold text-gold-500">
+              G
+            </span>
+            <span
+              className={`font-display text-2xl font-semibold tracking-wide ${
+                solid ? "text-ink" : "text-white"
+              }`}
+            >
+              Grand Hotel
+            </span>
           </Link>
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center gap-8">
 
-            <Link
-              to="/"
-              className="text-gray-700 hover:text-blue-600"
-            >
-              Home
-            </Link>
-
-            <Link
-              to="/rooms"
-              className="text-gray-700 hover:text-blue-600"
-            >
-              Rooms
-            </Link>
+            {links.map((link) => (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                end={link.end}
+                className={linkClass}
+              >
+                {link.label}
+              </NavLink>
+            ))}
 
             {user ? (
-              <>
-                <Link
-                  to="/my-bookings"
-                  className="text-gray-700 hover:text-blue-600"
+              <div className="flex items-center gap-4 pl-6 border-l border-gray-300/40">
+                <div
+                  className={`flex items-center gap-2 text-sm ${
+                    solid ? "text-gray-700" : "text-white"
+                  }`}
                 >
-                  My Bookings
-                </Link>
-
-                <div className="flex items-center gap-2 text-gray-700">
-                  <User size={18} />
-
-                  <span>
-                    {user.name}
+                  <span className="grid h-8 w-8 place-items-center rounded-full bg-gold-100 text-gold-700">
+                    <User size={16} />
                   </span>
+                  <span className="font-medium">{user.name}</span>
                 </div>
 
                 <button
                   onClick={handleLogout}
-                  className="flex items-center gap-2 text-red-600 hover:text-red-700"
+                  title="Logout"
+                  className={`rounded-full p-2 transition ${
+                    solid
+                      ? "text-gray-500 hover:bg-gray-100 hover:text-red-600"
+                      : "text-white/80 hover:text-white"
+                  }`}
                 >
                   <LogOut size={18} />
-                  Logout
                 </button>
-              </>
+              </div>
             ) : (
-              <>
-                <Link
-                  to="/login"
-                  className="text-gray-700 hover:text-blue-600"
-                >
+              <div className="flex items-center gap-4">
+                <NavLink to="/login" className={linkClass}>
                   Login
-                </Link>
+                </NavLink>
 
-                <Link
-                  to="/register"
-                  className="bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700"
-                >
-                  Register
+                <Link to="/rooms" className="btn-gold px-5 py-2.5 text-sm">
+                  Book Now
                 </Link>
-              </>
+              </div>
             )}
 
           </div>
@@ -107,58 +131,44 @@ function Navbar() {
           {/* Mobile Button */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden"
+            className={`md:hidden ${solid ? "text-ink" : "text-white"}`}
+            aria-label="Toggle menu"
           >
-            {isOpen ? (
-              <X size={28} />
-            ) : (
-              <Menu size={28} />
-            )}
+            {isOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
 
         </div>
 
         {/* Mobile Menu */}
         {isOpen && (
-          <div className="md:hidden pb-6 space-y-4">
+          <div className="md:hidden pb-6 pt-2 space-y-1 border-t border-gray-100">
 
-            <Link
-              to="/"
-              onClick={() => setIsOpen(false)}
-              className="block text-gray-700"
-            >
-              Home
-            </Link>
-
-            <Link
-              to="/rooms"
-              onClick={() => setIsOpen(false)}
-              className="block text-gray-700"
-            >
-              Rooms
-            </Link>
+            {links.map((link) => (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                end={link.end}
+                onClick={() => setIsOpen(false)}
+                className={({ isActive }) =>
+                  `block rounded-lg px-3 py-3 font-medium ${
+                    isActive ? "bg-gold-50 text-gold-700" : "text-gray-700"
+                  }`
+                }
+              >
+                {link.label}
+              </NavLink>
+            ))}
 
             {user ? (
               <>
-                <Link
-                  to="/my-bookings"
-                  onClick={() => setIsOpen(false)}
-                  className="block text-gray-700"
-                >
-                  My Bookings
-                </Link>
-
-                <div className="flex items-center gap-2 text-gray-700">
+                <div className="flex items-center gap-2 px-3 py-3 text-gray-700">
                   <User size={18} />
-
-                  <span>
-                    {user.name}
-                  </span>
+                  <span>{user.name}</span>
                 </div>
 
                 <button
                   onClick={handleLogout}
-                  className="flex items-center gap-2 text-red-600"
+                  className="flex items-center gap-2 px-3 py-3 text-red-600"
                 >
                   <LogOut size={18} />
                   Logout
@@ -166,20 +176,20 @@ function Navbar() {
               </>
             ) : (
               <>
-                <Link
+                <NavLink
                   to="/login"
                   onClick={() => setIsOpen(false)}
-                  className="block text-gray-700"
+                  className="block rounded-lg px-3 py-3 font-medium text-gray-700"
                 >
                   Login
-                </Link>
+                </NavLink>
 
                 <Link
                   to="/register"
                   onClick={() => setIsOpen(false)}
-                  className="block bg-blue-600 text-white text-center px-5 py-2.5 rounded-lg"
+                  className="btn-gold w-full mt-2"
                 >
-                  Register
+                  Create Account
                 </Link>
               </>
             )}
