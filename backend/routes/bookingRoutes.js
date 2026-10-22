@@ -4,6 +4,7 @@ const router = express.Router();
 
 const db = require("../config/db");
 const authMiddleware = require("../middleware/authMiddleware");
+const { sendBookingEmail } = require("../utils/email");
 
 
 // ========================================
@@ -180,6 +181,8 @@ router.post("/", authMiddleware, (req, res) => {
                             });
                         }
 
+
+                        sendBookingEmail(result.insertId, "received");
 
                         res.status(201).json({
                             success: true,

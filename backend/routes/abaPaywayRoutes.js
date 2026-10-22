@@ -3,6 +3,7 @@ const crypto = require("crypto");
 const db = require("../config/db");
 const authMiddleware = require("../middleware/authMiddleware");
 const { sendTelegramMessage } = require("../utils/telegram");
+const { sendBookingEmail } = require("../utils/email");
 
 const router = express.Router();
 
@@ -554,6 +555,8 @@ router.post("/:tranId/check", authMiddleware, async (req, res) => {
         );
 
         console.log("Payment marked as paid.");
+
+        sendBookingEmail(payment.booking_id, "confirmed");
         console.log("Payment ID:", payment.id);
         console.log("Booking ID:", payment.booking_id);
 

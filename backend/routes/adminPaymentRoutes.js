@@ -1,6 +1,7 @@
 const express = require("express");
 
 const router = express.Router();
+const { sendBookingEmail } = require("../utils/email");
 
 const db = require("../config/db");
 const adminMiddleware = require("../middleware/adminMiddleware");
@@ -297,6 +298,8 @@ router.put("/:id/status", adminMiddleware, (req, res) => {
                                     });
                                 }
 
+
+                                sendBookingEmail(payment.booking_id, "confirmed");
 
                                 return res.json({
                                     success: true,
