@@ -46,40 +46,24 @@ function App() {
           element={<MyBookings />}
         />
 
+        {/* Admin pages: only logged-in admins */}
+        <Route element={<AdminRoute />}>
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/rooms" element={<AdminRooms />} />
+          <Route path="/admin/bookings" element={<AdminBookings />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/payments" element={<AdminPayments />} />
+          <Route path="/admin/reports" element={<AdminReports />} />
+        </Route>
+
+        <Route path="/payment/:bookingId" element={<Payment />} />
+
         <Route
-          path="/admin"
-          element={<AdminDashboard />}
+          path="/booking-confirmation"
+          element={<BookingConfirmation />}
         />
 
-        <Route
-          path="/admin/rooms"
-          element={<AdminRooms />}
-       />
-
-       <Route
-         path="/admin/bookings"
-         element={<AdminBookings />}
-       />
-
-       <Route
-         path="/admin/users"
-         element={<AdminUsers />}
-      />
-
-      <Route
-       path="/admin/payments"
-       element={<AdminPayments />}
-     />
-
-     <Route path="/admin/reports" element={<AdminReports />} />
-
-     <Route path="/payment/:bookingId" element={<Payment />} />
-     <Route element={<AdminRoute />}></Route>
-     <Route path="*" element={<NotFound />} />
-     <Route
-  path="/booking-confirmation"
-  element={<BookingConfirmation />}
-/>
+        <Route path="*" element={<NotFound />} />
 
       </Routes>
     </BrowserRouter>

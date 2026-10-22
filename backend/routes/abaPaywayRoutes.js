@@ -92,20 +92,6 @@ function buildCheckTransactionHash({ req_time, merchant_id, tran_id }) {
 }
 
 // ============================================================
-// CONFIG CHECK
-// ============================================================
-
-router.get("/config-check", (req, res) => {
-  res.json({
-    success: true,
-    merchant_id: MERCHANT_ID || null,
-    base_url: BASE_URL || null,
-    api_key_configured: Boolean(API_KEY),
-    frontend_url: FRONTEND_URL || null,
-  });
-});
-
-// ============================================================
 // CREATE ABA PAYWAY PAYMENT
 //
 // POST /api/payway/:bookingId

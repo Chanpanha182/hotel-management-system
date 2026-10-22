@@ -1,8 +1,11 @@
 const express = require("express");
 const cors = require("cors");
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
 require("dotenv").config();
 
-const db = require("./config/db");
+// Opens the database pool and logs whether the connection works
+require("./config/db");
 const roomRoutes = require("./routes/roomRoutes");
 const authRoutes = require("./routes/authRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
@@ -13,13 +16,32 @@ const adminUserRoutes = require("./routes/adminUserRoutes");
 const adminPaymentRoutes = require("./routes/adminPaymentRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const abaPaywayRoutes = require("./routes/abaPaywayRoutes");
-const { sendTelegramMessage } = require("./utils/telegram");
 const adminReportRoutes = require("./routes/adminReportRoutes");
 
 const app = express();
 
+// Render sits behind a proxy; needed so rate limiting sees the real visitor IP
+app.set("trust proxy", 1);
+
+app.use(helmet());
 app.use(cors());
 app.use(express.json());
+
+// Slow down password guessing: 10 login/register attempts per 15 minutes per IP
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 10,
+    standardHeaders: "draft-7",
+    legacyHeaders: false,
+    skipSuccessfulRequests: true,
+    message: {
+        success: false,
+        message: "Too many attempts. Please try again in 15 minutes."
+    }
+});
+
+app.use("/api/auth/login", authLimiter);
+app.use("/api/auth/register", authLimiter);
 
 app.use("/api/rooms", roomRoutes);
 app.use("/api/auth", authRoutes);
@@ -36,42 +58,6 @@ app.use("/api/admin/reports", adminReportRoutes);
 app.get("/", (req, res) => {
     res.json({
         message: "Hotel Management API is running!"
-    });
-});
-
-app.get("/api/test-telegram", async (req, res) => {
-    try {
-        await sendTelegramMessage(
-            "✅ Telegram is connected to the Hotel Management System!"
-        );
-
-        res.json({
-            success: true,
-            message: "Telegram notification sent successfully!"
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message
-        });
-    }
-});
-
-app.get("/api/test-db", (req, res) => {
-    db.query("SELECT 1 AS result", (err, results) => {
-        if (err) {
-            return res.status(500).json({
-                success: false,
-                message: "Database query failed",
-                error: err.message
-            });
-        }
-
-        res.json({
-            success: true,
-            message: "Database is working!",
-            data: results
-        });
     });
 });
 

@@ -1,25 +1,36 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { SlidersHorizontal, RotateCcw } from "lucide-react";
+import { SlidersHorizontal, RotateCcw, CalendarDays } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import RoomCard from "../components/RoomCard";
+
+const today = new Date().toISOString().split("T")[0];
 
 const ROOM_TYPES = ["Standard", "Deluxe", "Suite", "Luxury", "Family", "Presidential"];
 
 function Rooms() {
   const [searchParams] = useSearchParams();
 
-  const [rooms, setRooms] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [checkIn, setCheckIn] = useState(searchParams.get("checkIn") || "");
+  const [checkOut, setCheckOut] = useState(searchParams.get("checkOut") || "");
+
+  // Only ask the server about availability once both dates make sense
+  const datesReady = Boolean(checkIn && checkOut && checkIn < checkOut);
+  const queryKey = datesReady ? `?checkIn=${checkIn}&checkOut=${checkOut}` : "";
+
+  // Result of the last request, tagged with the query it was for
+  const [result, setResult] = useState({ key: null, rooms: [], error: "" });
+  const loading = result.key !== queryKey;
+  const rooms = result.rooms;
+  const error = loading ? "" : result.error;
 
   const [roomType, setRoomType] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [guests, setGuests] = useState(searchParams.get("guests") || "");
 
   useEffect(() => {
-    fetch(import.meta.env.VITE_API_URL + "/api/rooms")
+    fetch(import.meta.env.VITE_API_URL + "/api/rooms" + queryKey)
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to fetch rooms");
@@ -28,15 +39,17 @@ function Rooms() {
         return response.json();
       })
       .then((data) => {
-        setRooms(data.data);
-        setLoading(false);
+        setResult({ key: queryKey, rooms: data.data, error: "" });
       })
       .catch((error) => {
         console.error(error);
-        setError("Unable to load rooms. Please try again in a moment.");
-        setLoading(false);
+        setResult({
+          key: queryKey,
+          rooms: [],
+          error: "Unable to load rooms. Please try again in a moment.",
+        });
       });
-  }, []);
+  }, [queryKey]);
 
   const filteredRooms = rooms.filter((room) => {
     const typeMatch =
@@ -48,23 +61,31 @@ function Rooms() {
     const guestMatch =
       guests === "" || Number(room.capacity) >= Number(guests);
 
-    return typeMatch && priceMatch && guestMatch;
+    // "available" is only sent when dates were given
+    const dateMatch = !datesReady || Boolean(room.available);
+
+    return typeMatch && priceMatch && guestMatch && dateMatch;
   });
+
+  const bookedCount = datesReady
+    ? rooms.filter((room) => !room.available).length
+    : 0;
 
   // Carry the dates from the home page search into the room page
   const carry = new URLSearchParams();
-  ["checkIn", "checkOut", "guests"].forEach((key) => {
-    const value = key === "guests" ? guests : searchParams.get(key);
+  Object.entries({ checkIn, checkOut, guests }).forEach(([key, value]) => {
     if (value) carry.set(key, value);
   });
   const carryString = carry.toString() ? `?${carry.toString()}` : "";
 
-  const hasFilters = roomType || maxPrice || guests;
+  const hasFilters = roomType || maxPrice || guests || checkIn || checkOut;
 
   const resetFilters = () => {
     setRoomType("");
     setMaxPrice("");
     setGuests("");
+    setCheckIn("");
+    setCheckOut("");
   };
 
   return (
@@ -121,7 +142,35 @@ function Rooms() {
             )}
           </div>
 
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+
+            <label className="block">
+              <span className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                <CalendarDays size={13} className="text-gold-600" />
+                Check-in
+              </span>
+              <input
+                type="date"
+                min={today}
+                value={checkIn}
+                onChange={(e) => setCheckIn(e.target.value)}
+                className="field"
+              />
+            </label>
+
+            <label className="block">
+              <span className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                <CalendarDays size={13} className="text-gold-600" />
+                Check-out
+              </span>
+              <input
+                type="date"
+                min={checkIn || today}
+                value={checkOut}
+                onChange={(e) => setCheckOut(e.target.value)}
+                className="field"
+              />
+            </label>
 
             <label className="block">
               <span className="mb-2 block text-xs font-semibold uppercase tracking-wider text-gray-500">
@@ -183,7 +232,13 @@ function Rooms() {
         {!loading && !error && (
           <p className="mb-6 text-sm text-gray-500">
             Showing <span className="font-semibold text-ink">{filteredRooms.length}</span>{" "}
+            {datesReady ? "available " : ""}
             {filteredRooms.length === 1 ? "room" : "rooms"}
+            {bookedCount > 0 && (
+              <span className="text-gray-400">
+                {" "}· {bookedCount} already booked for these dates
+              </span>
+            )}
           </p>
         )}
 
@@ -211,7 +266,9 @@ function Rooms() {
             </h2>
 
             <p className="mt-2 text-gray-500">
-              Try changing your filters.
+              {datesReady
+                ? "All matching rooms are booked for these dates. Try other dates."
+                : "Try changing your filters."}
             </p>
 
             <button onClick={resetFilters} className="btn-gold mt-6">

@@ -1,27 +1,28 @@
 import { Navigate, Outlet } from "react-router-dom";
 
-function AdminRoute() {
-  const token = localStorage.getItem("token");
-  const userData = localStorage.getItem("user");
-
-  if (!token || !userData) {
-    return <Navigate to="/login" replace />;
-  }
-
+function getStoredUser() {
   try {
-    const user = JSON.parse(userData);
-
-    if (user.role !== "admin") {
-      return <Navigate to="/" replace />;
-    }
-
-    return <Outlet />;
-  } catch (error) {
+    return JSON.parse(localStorage.getItem("user"));
+  } catch {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    return null;
+  }
+}
 
+function AdminRoute() {
+  const token = localStorage.getItem("token");
+  const user = getStoredUser();
+
+  if (!token || !user) {
     return <Navigate to="/login" replace />;
   }
+
+  if (user.role !== "admin") {
+    return <Navigate to="/" replace />;
+  }
+
+  return <Outlet />;
 }
 
 export default AdminRoute;
