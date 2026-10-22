@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { CheckCircle, CreditCard, QrCode } from "lucide-react";
 
-// Customers scan this QR (frontend/public/aba-qr.png) and pay directly;
+// Customers scan this QR (frontend/public/aba-qr.jpg) and pay directly;
 // staff then confirm the payment in Admin > Payments.
 const KHQR_METHOD = "ABA KHQR";
-const KHQR_IMAGE = "/aba-qr.png";
+const KHQR_IMAGE = "/aba-qr.jpg";
 
 // Turn back on when new ABA PayWay keys are available.
 const PAYWAY_ENABLED = false;
