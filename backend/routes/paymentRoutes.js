@@ -4,6 +4,7 @@ const router = express.Router();
 
 const db = require("../config/db");
 const authMiddleware = require("../middleware/authMiddleware");
+const { sendTelegramMessage } = require("../utils/telegram");
 
 
 // ==========================================
@@ -203,6 +204,19 @@ router.post("/", authMiddleware, (req, res) => {
                                 });
                             }
 
+
+                            // Let staff know a KHQR payment needs checking
+                            if (payment_method === "ABA KHQR") {
+                                sendTelegramMessage(
+                                    `💰 New ABA KHQR payment to confirm
+` +
+                                    `Booking #${booking.id} – ${booking.room_name} (Room ${booking.room_number})
+` +
+                                    `Amount: ${Number(booking.total_amount).toFixed(2)}
+` +
+                                    `Check your ABA app, then mark it Paid in Admin > Payments.`
+                                );
+                            }
 
                             // ==========================================
                             // SUCCESS

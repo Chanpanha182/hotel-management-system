@@ -2,6 +2,14 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { CheckCircle, CreditCard, QrCode } from "lucide-react";
 
+// Customers scan this QR (frontend/public/aba-qr.png) and pay directly;
+// staff then confirm the payment in Admin > Payments.
+const KHQR_METHOD = "ABA KHQR";
+const KHQR_IMAGE = "/aba-qr.png";
+
+// Turn back on when new ABA PayWay keys are available.
+const PAYWAY_ENABLED = false;
+
 const Payment = () => {
     const { bookingId } = useParams();
     const navigate = useNavigate();
@@ -409,7 +417,9 @@ const Payment = () => {
             }
 
             alert(
-                "Payment request created successfully!"
+                paymentMethod === KHQR_METHOD
+                    ? "Thank you! We will confirm your payment shortly."
+                    : "Payment request created successfully!"
             );
 
             navigate("/my-bookings");
@@ -710,8 +720,46 @@ const Payment = () => {
 
                                     </label>
 
-                                    {/* ABA */}
+                                    {/* ABA KHQR */}
 
+                                    <label
+                                        className={`block border rounded-xl p-4 cursor-pointer transition ${
+                                            paymentMethod ===
+                                            KHQR_METHOD
+                                                ? "border-blue-500 bg-blue-50"
+                                                : "border-gray-200 hover:border-gray-300"
+                                        }`}
+                                    >
+
+                                        <input
+                                            type="radio"
+                                            name="payment"
+                                            value={KHQR_METHOD}
+                                            checked={
+                                                paymentMethod ===
+                                                KHQR_METHOD
+                                            }
+                                            onChange={(e) =>
+                                                setPaymentMethod(
+                                                    e.target.value
+                                                )
+                                            }
+                                            className="mr-3"
+                                        />
+
+                                        <span className="font-medium">
+                                            ABA KHQR
+                                        </span>
+
+                                        <p className="text-sm text-gray-500 ml-6 mt-1">
+                                            Scan the QR code with ABA or any Bakong bank app.
+                                        </p>
+
+                                    </label>
+
+                                    {/* ABA PAYWAY */}
+
+                                    {PAYWAY_ENABLED && (
                                     <label
                                         className={`block border rounded-xl p-4 cursor-pointer transition ${
                                             paymentMethod ===
@@ -746,6 +794,7 @@ const Payment = () => {
                                         </p>
 
                                     </label>
+                                    )}
 
                                     {/* DEMO */}
 
@@ -785,6 +834,41 @@ const Payment = () => {
                                     </label>
 
                                 </div>
+
+                                {/* KHQR INFORMATION */}
+
+                                {paymentMethod ===
+                                    KHQR_METHOD && (
+
+                                    <div className="mt-5 rounded-2xl border border-blue-200 bg-blue-50 p-5 text-center">
+
+                                        <img
+                                            src={KHQR_IMAGE}
+                                            alt="ABA KHQR code"
+                                            className="mx-auto w-full max-w-[260px] rounded-xl bg-white p-2 shadow-sm"
+                                        />
+
+                                        <p className="mt-4 text-sm text-gray-600">
+                                            Amount to pay
+                                        </p>
+
+                                        <p className="text-3xl font-bold text-blue-600">
+                                            ${totalAmount}
+                                        </p>
+
+                                        <ol className="mt-4 space-y-1 text-left text-sm text-gray-600 list-decimal list-inside">
+                                            <li>Open your ABA or Bakong bank app and scan the QR code.</li>
+                                            <li>Enter the amount <strong>${totalAmount}</strong>.</li>
+                                            <li>Write <strong>Booking #{bookingId}</strong> in the remark.</li>
+                                            <li>After paying, click <strong>I Have Paid</strong> below.</li>
+                                        </ol>
+
+                                        <p className="mt-4 text-xs text-gray-500">
+                                            Our staff will confirm your payment shortly.
+                                        </p>
+
+                                    </div>
+                                )}
 
                                 {/* ABA INFORMATION */}
 
@@ -853,7 +937,9 @@ const Payment = () => {
                                 >
 
                                     {paymentMethod ===
-                                    "ABA PayWay QR" ? (
+                                    "ABA PayWay QR" ||
+                                    paymentMethod ===
+                                    KHQR_METHOD ? (
                                         <QrCode
                                             size={20}
                                         />
@@ -867,7 +953,10 @@ const Payment = () => {
                                         ? "Processing..."
                                         : paymentMethod ===
                                           "ABA PayWay QR"
-                                        ? `Pay with ABA PayWay - $${totalAmount}`
+                                        ? `Pay with ABA PayWay - ${totalAmount}`
+                                        : paymentMethod ===
+                                          KHQR_METHOD
+                                        ? `I Have Paid - ${totalAmount}`
                                         : `Continue Payment - $${totalAmount}`}
 
                                 </button>
