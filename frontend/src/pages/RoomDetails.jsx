@@ -9,6 +9,8 @@ import {
 } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import RoomGallery from "../components/RoomGallery";
+import { getRoomPhotos } from "../utils/roomPhotos";
 
 function RoomDetails() {
   const { id } = useParams();
@@ -248,10 +250,9 @@ function RoomDetails() {
 
             <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
 
-              <img
-                src={room.image}
+              <RoomGallery
+                photos={getRoomPhotos(room)}
                 alt={room.room_name}
-                className="w-full h-[420px] object-cover"
               />
 
               <div className="p-8">

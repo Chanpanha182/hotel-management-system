@@ -2,6 +2,20 @@ const express = require("express");
 
 const router = express.Router();
 
+const MAX_GALLERY_PHOTOS = 10;
+
+// Keep only http(s) links and store them as a JSON array (or null)
+function normalizeGallery(gallery) {
+    const list = Array.isArray(gallery) ? gallery : [];
+
+    const urls = list
+        .map((url) => String(url || "").trim())
+        .filter((url) => /^https?:\/\/\S+$/i.test(url))
+        .slice(0, MAX_GALLERY_PHOTOS);
+
+    return urls.length ? JSON.stringify(urls) : null;
+}
+
 const db = require("../config/db");
 const adminMiddleware = require("../middleware/adminMiddleware");
 
@@ -50,6 +64,7 @@ router.post("/", adminMiddleware, (req, res) => {
         description,
         facilities,
         image,
+        gallery,
         status
     } = req.body;
 
@@ -79,9 +94,10 @@ router.post("/", adminMiddleware, (req, res) => {
             description,
             facilities,
             image,
+            gallery,
             status
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     db.query(
@@ -97,6 +113,7 @@ router.post("/", adminMiddleware, (req, res) => {
             description || null,
             facilities || null,
             image || null,
+            normalizeGallery(gallery),
             status || "available"
         ],
         (err, result) => {
@@ -138,6 +155,7 @@ router.put("/:id", adminMiddleware, (req, res) => {
         description,
         facilities,
         image,
+        gallery,
         status
     } = req.body;
 
@@ -154,6 +172,7 @@ router.put("/:id", adminMiddleware, (req, res) => {
             description = ?,
             facilities = ?,
             image = ?,
+            gallery = ?,
             status = ?
         WHERE id = ?
     `;
@@ -171,6 +190,7 @@ router.put("/:id", adminMiddleware, (req, res) => {
             description || null,
             facilities || null,
             image || null,
+            normalizeGallery(gallery),
             status
         ,
             id

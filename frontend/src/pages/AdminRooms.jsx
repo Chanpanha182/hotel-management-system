@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 
 import AdminSidebar from "../components/AdminSidebar";
+import { parseGallery } from "../utils/roomPhotos";
 
 const API_URL = import.meta.env.VITE_API_URL + "/api/admin/rooms";
 
@@ -52,8 +53,11 @@ const EMPTY_FORM = {
   description: "",
   facilities: "",
   image: "",
+  gallery: [],
   status: "available",
 };
+
+const MAX_GALLERY_PHOTOS = 10;
 
 const INPUT_CLASS =
   "w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20";
@@ -395,6 +399,7 @@ function AdminRooms() {
       description: room.description ?? "",
       facilities: room.facilities ?? "",
       image: room.image ?? "",
+      gallery: parseGallery(room.gallery),
       status: room.status || "available",
     });
 
@@ -825,6 +830,20 @@ function AdminRooms() {
                 </Field>
 
                 <Field
+                  id="gallery"
+                  label={`Extra Photos (${form.gallery.length}/${MAX_GALLERY_PHOTOS})`}
+                  hint="Paste an image link and click Add. These show in the room's photo gallery."
+                  className="md:col-span-2"
+                >
+                  <GalleryEditor
+                    photos={form.gallery}
+                    onChange={(gallery) =>
+                      setForm((current) => ({ ...current, gallery }))
+                    }
+                  />
+                </Field>
+
+                <Field
                   id="description"
                   label="Description"
                   className="md:col-span-2"
@@ -1251,6 +1270,97 @@ function AdminRooms() {
       />
 
       <Toast toast={toast} onClose={closeToast} />
+    </div>
+  );
+}
+
+function GalleryEditor({ photos, onChange }) {
+  const [url, setUrl] = useState("");
+  const [error, setError] = useState("");
+
+  const addPhoto = () => {
+    const value = url.trim();
+
+    if (!/^https?:\/\/\S+$/i.test(value)) {
+      setError("Please paste a full image link starting with https://");
+      return;
+    }
+
+    if (photos.includes(value)) {
+      setError("This photo is already in the gallery.");
+      return;
+    }
+
+    if (photos.length >= MAX_GALLERY_PHOTOS) {
+      setError(`You can add up to ${MAX_GALLERY_PHOTOS} extra photos.`);
+      return;
+    }
+
+    onChange([...photos, value]);
+    setUrl("");
+    setError("");
+  };
+
+  const removePhoto = (index) => {
+    onChange(photos.filter((_, i) => i !== index));
+  };
+
+  return (
+    <div>
+      <div className="flex gap-3">
+        <input
+          id="gallery"
+          type="url"
+          value={url}
+          onChange={(e) => {
+            setUrl(e.target.value);
+            setError("");
+          }}
+          onKeyDown={(e) => {
+            // Enter adds the photo instead of submitting the whole form
+            if (e.key === "Enter") {
+              e.preventDefault();
+              addPhoto();
+            }
+          }}
+          placeholder="https://..."
+          className={INPUT_CLASS}
+        />
+
+        <button
+          type="button"
+          onClick={addPhoto}
+          disabled={photos.length >= MAX_GALLERY_PHOTOS}
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-gray-900 px-4 text-sm font-semibold text-white transition hover:bg-black disabled:bg-gray-300"
+        >
+          <Plus size={16} />
+          Add
+        </button>
+      </div>
+
+      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+
+      {photos.length > 0 && (
+        <div className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-5">
+          {photos.map((src, index) => (
+            <div
+              key={src}
+              className="group relative overflow-hidden rounded-xl border border-gray-100"
+            >
+              <RoomThumb src={src} alt={`Extra photo ${index + 1}`} className="h-20 w-full" />
+
+              <button
+                type="button"
+                onClick={() => removePhoto(index)}
+                className="absolute right-1.5 top-1.5 grid h-7 w-7 place-items-center rounded-full bg-white/90 text-red-600 shadow transition hover:bg-white"
+                aria-label={`Remove photo ${index + 1}`}
+              >
+                <X size={14} />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
