@@ -93,9 +93,18 @@ function Login() {
           />
 
           {/* Password */}
-          <label className="mb-2 block text-sm font-medium text-gray-700">
-            Password
-          </label>
+          <div className="mb-2 flex items-center justify-between">
+            <label className="block text-sm font-medium text-gray-700">
+              Password
+            </label>
+
+            <Link
+              to="/forgot-password"
+              className="text-sm font-medium text-gold-600 hover:underline"
+            >
+              Forgot password?
+            </Link>
+          </div>
 
           <input
             type="password"

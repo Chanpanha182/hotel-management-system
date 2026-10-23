@@ -177,7 +177,45 @@ async function sendBookingEmail(bookingId, kind) {
     }
 }
 
+async function sendPasswordResetEmail({ to, name, resetUrl, minutes }) {
+    const html = `
+<div style="background:#faf8f4;padding:32px 16px;font-family:Arial,Helvetica,sans-serif;color:#1f2937">
+  <div style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #eee">
+    <div style="background:#14161c;padding:28px 32px">
+      <p style="margin:0;font-family:Georgia,serif;font-size:24px;color:#ffffff">${HOTEL_NAME}</p>
+    </div>
+
+    <div style="padding:32px">
+      <h1 style="font-family:Georgia,serif;font-size:26px;margin:0 0 8px">Reset your password</h1>
+      <p style="margin:0 0 24px;line-height:1.6;color:#4b5563">
+        Dear ${escapeHtml(name)},<br>
+        We received a request to reset the password for your ${HOTEL_NAME} account.
+        Click the button below to choose a new password.
+      </p>
+
+      <p style="margin:0 0 24px;text-align:center">
+        <a href="${resetUrl}" style="display:inline-block;background:#94692c;color:#ffffff;text-decoration:none;font-weight:bold;padding:14px 28px;border-radius:999px">Reset Password</a>
+      </p>
+
+      <p style="margin:0;font-size:13px;line-height:1.6;color:#6b7280">
+        This link works once and expires in ${minutes} minutes.<br>
+        If you did not ask to reset your password, you can ignore this email —
+        your password will not change.
+      </p>
+    </div>
+  </div>
+</div>`;
+
+    await sendEmail({
+        to,
+        toName: name,
+        subject: `Reset your password – ${HOTEL_NAME}`,
+        html
+    });
+}
+
 module.exports = {
     sendEmail,
-    sendBookingEmail
+    sendBookingEmail,
+    sendPasswordResetEmail
 };

@@ -42,6 +42,20 @@ const authLimiter = rateLimit({
 
 app.use("/api/auth/login", authLimiter);
 app.use("/api/auth/register", authLimiter);
+// Every reset request sends an email, so count all of them
+const resetEmailLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000,
+    limit: 5,
+    standardHeaders: "draft-7",
+    legacyHeaders: false,
+    message: {
+        success: false,
+        message: "Too many reset requests. Please try again in an hour."
+    }
+});
+
+app.use("/api/auth/forgot-password", resetEmailLimiter);
+app.use("/api/auth/reset-password", authLimiter);
 
 app.use("/api/rooms", roomRoutes);
 app.use("/api/auth", authRoutes);
