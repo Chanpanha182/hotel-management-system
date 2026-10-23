@@ -16,8 +16,53 @@ function normalizeGallery(gallery) {
     return urls.length ? JSON.stringify(urls) : null;
 }
 
+const crypto = require("crypto");
 const db = require("../config/db");
 const adminMiddleware = require("../middleware/adminMiddleware");
+
+
+// PHOTO UPLOAD SIGNATURE
+// The browser uploads straight to Cloudinary (Render's disk is wiped on
+// every restart). This signs each upload so only admins can use our account.
+router.post("/upload-signature", adminMiddleware, (req, res) => {
+
+    const {
+        CLOUDINARY_CLOUD_NAME,
+        CLOUDINARY_API_KEY,
+        CLOUDINARY_API_SECRET
+    } = process.env;
+
+    if (
+        !CLOUDINARY_CLOUD_NAME ||
+        !CLOUDINARY_API_KEY ||
+        !CLOUDINARY_API_SECRET
+    ) {
+        return res.status(500).json({
+            success: false,
+            message: "Photo upload is not set up yet."
+        });
+    }
+
+    const folder = "hotel-rooms";
+    const timestamp = Math.round(Date.now() / 1000);
+
+    // Cloudinary signs the parameters in alphabetical order
+    const signature = crypto
+        .createHash("sha1")
+        .update(`folder=${folder}&timestamp=${timestamp}${CLOUDINARY_API_SECRET}`)
+        .digest("hex");
+
+    res.json({
+        success: true,
+        data: {
+            cloudName: CLOUDINARY_CLOUD_NAME,
+            apiKey: CLOUDINARY_API_KEY,
+            folder,
+            timestamp,
+            signature
+        }
+    });
+});
 
 
 // GET ALL ROOMS

@@ -14,6 +14,7 @@ import {
   Users,
   Loader2,
   ImageOff,
+  Upload,
 } from "lucide-react";
 
 import AdminSidebar from "../components/AdminSidebar";
@@ -58,6 +59,104 @@ const EMPTY_FORM = {
 };
 
 const MAX_GALLERY_PHOTOS = 10;
+const MAX_UPLOAD_MB = 10;
+
+// Uploads one photo straight to Cloudinary using a signature from our
+// backend, and returns a resized, auto-format link to it.
+async function uploadPhoto(file, api) {
+  if (!file.type.startsWith("image/")) {
+    throw new Error(`"${file.name}" is not an image.`);
+  }
+
+  if (file.size > MAX_UPLOAD_MB * 1024 * 1024) {
+    throw new Error(`"${file.name}" is bigger than ${MAX_UPLOAD_MB} MB.`);
+  }
+
+  const { data: sign } = await api("/upload-signature", { method: "POST" });
+
+  const body = new FormData();
+  body.append("file", file);
+  body.append("api_key", sign.apiKey);
+  body.append("timestamp", sign.timestamp);
+  body.append("folder", sign.folder);
+  body.append("signature", sign.signature);
+
+  const response = await fetch(
+    `https://api.cloudinary.com/v1_1/${sign.cloudName}/image/upload`,
+    { method: "POST", body }
+  );
+
+  const result = await response.json().catch(() => ({}));
+
+  if (!response.ok || !result.secure_url) {
+    throw new Error(result?.error?.message || "Photo upload failed.");
+  }
+
+  // Serve a web-sized version: max 1600px wide, best format and quality
+  return result.secure_url.replace(
+    "/upload/",
+    "/upload/f_auto,q_auto,c_limit,w_1600/"
+  );
+}
+
+function UploadButton({ api, multiple = false, max = 1, disabled, onUploaded, onError, label }) {
+  const inputRef = useRef(null);
+  const [progress, setProgress] = useState(null);
+
+  const handleFiles = async (e) => {
+    const files = Array.from(e.target.files || []).slice(0, max);
+    e.target.value = "";
+
+    if (!files.length) return;
+
+    onError("");
+    const urls = [];
+
+    try {
+      for (let i = 0; i < files.length; i++) {
+        setProgress(`${i + 1}/${files.length}`);
+        urls.push(await uploadPhoto(files[i], api));
+      }
+    } catch (err) {
+      onError(err.message);
+    } finally {
+      setProgress(null);
+      if (urls.length) onUploaded(urls);
+    }
+  };
+
+  return (
+    <>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        multiple={multiple}
+        onChange={handleFiles}
+        className="hidden"
+      />
+
+      <button
+        type="button"
+        onClick={() => inputRef.current?.click()}
+        disabled={disabled || progress !== null}
+        className="inline-flex shrink-0 items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2.5 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 disabled:opacity-60"
+      >
+        {progress !== null ? (
+          <>
+            <Loader2 size={16} className="animate-spin" />
+            Uploading {progress}
+          </>
+        ) : (
+          <>
+            <Upload size={16} />
+            {label}
+          </>
+        )}
+      </button>
+    </>
+  );
+}
 
 const INPUT_CLASS =
   "w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20";
@@ -267,6 +366,7 @@ function AdminRooms() {
   const [editingRoom, setEditingRoom] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [formError, setFormError] = useState("");
+  const [coverUploadError, setCoverUploadError] = useState("");
   const [saving, setSaving] = useState(false);
 
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -821,12 +921,25 @@ function AdminRooms() {
                       className={INPUT_CLASS}
                     />
 
+                    <UploadButton
+                      api={api}
+                      label="Upload"
+                      onUploaded={([url]) =>
+                        setForm((current) => ({ ...current, image: url }))
+                      }
+                      onError={setCoverUploadError}
+                    />
+
                     <RoomThumb
                       src={form.image.trim()}
                       alt="Room preview"
                       className="h-11 w-16 shrink-0 rounded-lg border border-gray-100"
                     />
                   </div>
+
+                  {coverUploadError && (
+                    <p className="mt-2 text-sm text-red-600">{coverUploadError}</p>
+                  )}
                 </Field>
 
                 <Field
@@ -836,6 +949,7 @@ function AdminRooms() {
                   className="md:col-span-2"
                 >
                   <GalleryEditor
+                    api={api}
                     photos={form.gallery}
                     onChange={(gallery) =>
                       setForm((current) => ({ ...current, gallery }))
@@ -1274,7 +1388,7 @@ function AdminRooms() {
   );
 }
 
-function GalleryEditor({ photos, onChange }) {
+function GalleryEditor({ api, photos, onChange }) {
   const [url, setUrl] = useState("");
   const [error, setError] = useState("");
 
@@ -1307,7 +1421,7 @@ function GalleryEditor({ photos, onChange }) {
 
   return (
     <div>
-      <div className="flex gap-3">
+      <div className="flex flex-wrap gap-3">
         <input
           id="gallery"
           type="url"
@@ -1324,7 +1438,7 @@ function GalleryEditor({ photos, onChange }) {
             }
           }}
           placeholder="https://..."
-          className={INPUT_CLASS}
+          className={`${INPUT_CLASS} min-w-[12rem] flex-1`}
         />
 
         <button
@@ -1336,6 +1450,18 @@ function GalleryEditor({ photos, onChange }) {
           <Plus size={16} />
           Add
         </button>
+
+        <UploadButton
+          api={api}
+          multiple
+          max={MAX_GALLERY_PHOTOS - photos.length}
+          disabled={photos.length >= MAX_GALLERY_PHOTOS}
+          label="Upload photos"
+          onUploaded={(urls) =>
+            onChange([...photos, ...urls].slice(0, MAX_GALLERY_PHOTOS))
+          }
+          onError={setError}
+        />
       </div>
 
       {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
