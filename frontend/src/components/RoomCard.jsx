@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Users, BedDouble, Maximize, ArrowRight } from "lucide-react";
+import Stars from "./Stars";
 
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=1000&q=80";
@@ -36,6 +37,16 @@ function RoomCard({ room, search = "" }) {
         <h3 className="text-2xl font-semibold text-ink">
           {room.room_name}
         </h3>
+
+        {Number(room.review_count) > 0 && (
+          <p className="mt-1.5 flex items-center gap-1.5 text-sm text-gray-500">
+            <Stars value={Number(room.avg_rating)} size={14} />
+            <span className="font-semibold text-ink">
+              {Number(room.avg_rating).toFixed(1)}
+            </span>
+            ({room.review_count})
+          </p>
+        )}
 
         {room.description && (
           <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-gray-500">

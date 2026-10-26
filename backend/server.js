@@ -17,6 +17,8 @@ const adminPaymentRoutes = require("./routes/adminPaymentRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const abaPaywayRoutes = require("./routes/abaPaywayRoutes");
 const adminReportRoutes = require("./routes/adminReportRoutes");
+const reviewRoutes = require("./routes/reviewRoutes");
+const adminReviewRoutes = require("./routes/adminReviewRoutes");
 
 const app = express();
 
@@ -68,6 +70,8 @@ app.use("/api/admin/payments", adminPaymentRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/payway", abaPaywayRoutes);
 app.use("/api/admin/reports", adminReportRoutes);
+app.use("/api/reviews", reviewRoutes);
+app.use("/api/admin/reviews", adminReviewRoutes);
 
 app.get("/", (req, res) => {
     res.json({

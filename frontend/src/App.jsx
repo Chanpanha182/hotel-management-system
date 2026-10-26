@@ -18,6 +18,7 @@ import BookingConfirmation from "./pages/BookingConfirmation";
 import AdminReports from "./pages/AdminReports";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import AdminReviews from "./pages/AdminReviews";
 
 function App() {
   return (
@@ -66,6 +67,7 @@ function App() {
           <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/payments" element={<AdminPayments />} />
           <Route path="/admin/reports" element={<AdminReports />} />
+          <Route path="/admin/reviews" element={<AdminReviews />} />
         </Route>
 
         <Route path="/payment/:bookingId" element={<Payment />} />

@@ -5,6 +5,22 @@ const db = require("../config/db");
 
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
+// Average star rating and number of visible reviews for each room
+const RATING_COLUMNS = `
+    (
+        SELECT ROUND(AVG(reviews.rating), 1)
+        FROM reviews
+        WHERE reviews.room_id = rooms.id
+        AND reviews.status = 'visible'
+    ) AS avg_rating,
+    (
+        SELECT COUNT(*)
+        FROM reviews
+        WHERE reviews.room_id = rooms.id
+        AND reviews.status = 'visible'
+    ) AS review_count
+`;
+
 // Get all rooms
 // Optional ?checkIn=YYYY-MM-DD&checkOut=YYYY-MM-DD adds an "available"
 // flag to each room (false when a non-cancelled booking overlaps).
@@ -20,6 +36,7 @@ router.get("/", (req, res) => {
         ? `
             SELECT
                 rooms.*,
+                ${RATING_COLUMNS},
                 NOT EXISTS (
                     SELECT 1
                     FROM bookings
@@ -31,7 +48,7 @@ router.get("/", (req, res) => {
             FROM rooms
             ORDER BY id DESC
         `
-        : "SELECT * FROM rooms ORDER BY id DESC";
+        : `SELECT rooms.*, ${RATING_COLUMNS} FROM rooms ORDER BY id DESC`;
 
     const params = hasDates ? [checkOut, checkIn] : [];
 
@@ -56,7 +73,7 @@ router.get("/", (req, res) => {
 router.get("/:id", (req, res) => {
     const { id } = req.params;
 
-    const sql = "SELECT * FROM rooms WHERE id = ?";
+    const sql = `SELECT rooms.*, ${RATING_COLUMNS} FROM rooms WHERE id = ?`;
 
     db.query(sql, [id], (err, results) => {
         if (err) {

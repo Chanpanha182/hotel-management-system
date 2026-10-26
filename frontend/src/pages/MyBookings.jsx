@@ -5,9 +5,12 @@ import {
   Users,
   ArrowLeft,
   XCircle,
+  Star,
 } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import ReviewModal from "../components/ReviewModal";
+import Stars from "../components/Stars";
 
 function MyBookings() {
   const navigate = useNavigate();
@@ -16,6 +19,7 @@ function MyBookings() {
   const [payments, setPayments] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [reviewBooking, setReviewBooking] = useState(null);
 
   // ========================================
   // FETCH BOOKINGS + PAYMENTS
@@ -648,6 +652,34 @@ if (payment.payment_status === "pending") {
                       </div>
 
                       {/* ========================================
+                          REVIEW
+                      ======================================== */}
+
+                      {Number(booking.can_review) === 1 && (
+                        <div className="mt-5 flex flex-col gap-3 rounded-xl bg-gold-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+                          <p className="text-sm text-gray-700">
+                            How was your stay? Your review helps other guests.
+                          </p>
+
+                          <button
+                            onClick={() => setReviewBooking(booking)}
+                            className="btn-gold shrink-0 px-5 py-2.5 text-sm"
+                          >
+                            <Star size={16} />
+                            Write a Review
+                          </button>
+                        </div>
+                      )}
+
+                      {booking.review_rating && (
+                        <p className="mt-5 flex items-center gap-2 text-sm text-gray-600">
+                          Your review:
+                          <Stars value={Number(booking.review_rating)} size={15} />
+                          — thank you!
+                        </p>
+                      )}
+
+                      {/* ========================================
                           CANCEL BOOKING
                       ======================================== */}
 
@@ -739,6 +771,24 @@ if (payment.payment_status === "pending") {
           )}
 
       </main>
+
+      {reviewBooking && (
+        <ReviewModal
+          booking={reviewBooking}
+          onClose={() => setReviewBooking(null)}
+          onSaved={(rating) => {
+            // Show the new rating on the card without reloading
+            setBookings((current) =>
+              current.map((booking) =>
+                booking.id === reviewBooking.id
+                  ? { ...booking, can_review: 0, review_rating: rating }
+                  : booking
+              )
+            );
+            setReviewBooking(null);
+          }}
+        />
+      )}
 
       <Footer />
     </div>

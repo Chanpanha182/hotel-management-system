@@ -5,6 +5,7 @@ const router = express.Router();
 const db = require("../config/db");
 const authMiddleware = require("../middleware/authMiddleware");
 const { sendBookingEmail } = require("../utils/email");
+const { REVIEWABLE_SQL } = require("./reviewRoutes");
 
 
 // ========================================
@@ -231,12 +232,19 @@ router.get("/my-bookings", authMiddleware, (req, res) => {
             rooms.room_name,
             rooms.room_type,
             rooms.price,
-            rooms.image
+            rooms.image,
+
+            reviews.id AS review_id,
+            reviews.rating AS review_rating,
+            (reviews.id IS NULL AND ${REVIEWABLE_SQL}) AS can_review
 
         FROM bookings
 
         INNER JOIN rooms
             ON bookings.room_id = rooms.id
+
+        LEFT JOIN reviews
+            ON reviews.booking_id = bookings.id
 
         WHERE bookings.user_id = ?
 

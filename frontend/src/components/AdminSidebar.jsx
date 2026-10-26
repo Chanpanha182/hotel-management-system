@@ -8,6 +8,7 @@ import {
   Users,
   CreditCard,
   FileBarChart,
+  Star,
   Globe,
   LogOut,
   Hotel,
@@ -51,6 +52,11 @@ function AdminSidebar() {
   name: "Payments",
   path: "/admin/payments",
   icon: CreditCard,
+},
+{
+  name: "Reviews",
+  path: "/admin/reviews",
+  icon: Star,
 },
 {
   name: "Reports",

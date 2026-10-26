@@ -10,6 +10,8 @@ import {
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import RoomGallery from "../components/RoomGallery";
+import RoomReviews from "../components/RoomReviews";
+import Stars from "../components/Stars";
 import { getRoomPhotos } from "../utils/roomPhotos";
 
 function RoomDetails() {
@@ -273,6 +275,17 @@ function RoomDetails() {
                       Room {room.room_number}
                     </p>
 
+                    {Number(room.review_count) > 0 && (
+                      <p className="mt-2 flex items-center gap-2 text-sm text-gray-600">
+                        <Stars value={Number(room.avg_rating)} />
+                        <span className="font-semibold text-ink">
+                          {Number(room.avg_rating).toFixed(1)}
+                        </span>
+                        ({room.review_count}{" "}
+                        {Number(room.review_count) === 1 ? "review" : "reviews"})
+                      </p>
+                    )}
+
                   </div>
 
                   <div>
@@ -387,6 +400,8 @@ function RoomDetails() {
               </div>
 
             </div>
+
+            <RoomReviews roomId={room.id} />
 
           </div>
 
