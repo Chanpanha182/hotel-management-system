@@ -166,6 +166,7 @@ function RoomDetails() {
       ...data.data,
       room_name: room.room_name,
       room_number: room.room_number,
+      room_image: room.image,
     },
   },
 });
@@ -242,7 +243,7 @@ function RoomDetails() {
 
         <Link
           to="/rooms"
-          className="inline-flex items-center gap-2 text-gray-600 hover:text-blue-600 mb-8"
+          className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gold-700 mb-8"
         >
           <ArrowLeft size={18} />
           {t("common.backToRooms")}
@@ -257,7 +258,7 @@ function RoomDetails() {
 
           <div className="lg:col-span-2">
 
-            <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <div className="bg-white rounded-3xl shadow-sm ring-1 ring-black/5 overflow-hidden">
 
               <RoomGallery
                 photos={getRoomPhotos(room)}
@@ -270,11 +271,11 @@ function RoomDetails() {
 
                   <div>
 
-                    <p className="text-blue-600 font-medium">
+                    <p className="eyebrow">
                       {t(`roomType.${room.room_type}`)}
                     </p>
 
-                    <h1 className="text-3xl font-bold text-gray-900 mt-1">
+                    <h1 className="text-4xl font-semibold text-ink mt-2">
                       {room.room_name}
                     </h1>
 
@@ -297,7 +298,7 @@ function RoomDetails() {
                   </div>
 
                   <div>
-                    <span className="text-3xl font-bold text-blue-600">
+                    <span className="font-display text-4xl font-semibold text-ink">
                       ${Number(room.price).toFixed(2)}
                     </span>
 
@@ -313,8 +314,8 @@ function RoomDetails() {
 
                 <div className="grid sm:grid-cols-3 gap-4 mt-8">
 
-                  <div className="flex items-center gap-3 bg-gray-50 p-4 rounded-xl">
-                    <Users className="text-blue-600" />
+                  <div className="flex items-center gap-3 bg-cream p-4 rounded-2xl">
+                    <Users className="text-gold-600" />
 
                     <div>
                       <p className="text-sm text-gray-500">
@@ -328,8 +329,8 @@ function RoomDetails() {
                   </div>
 
 
-                  <div className="flex items-center gap-3 bg-gray-50 p-4 rounded-xl">
-                    <BedDouble className="text-blue-600" />
+                  <div className="flex items-center gap-3 bg-cream p-4 rounded-2xl">
+                    <BedDouble className="text-gold-600" />
 
                     <div>
                       <p className="text-sm text-gray-500">
@@ -343,8 +344,8 @@ function RoomDetails() {
                   </div>
 
 
-                  <div className="flex items-center gap-3 bg-gray-50 p-4 rounded-xl">
-                    <span className="text-blue-600 text-xl">
+                  <div className="flex items-center gap-3 bg-cream p-4 rounded-2xl">
+                    <span className="text-gold-600 text-xl">
                       📐
                     </span>
 
@@ -366,7 +367,7 @@ function RoomDetails() {
 
                 <div className="mt-10">
 
-                  <h2 className="text-xl font-bold text-gray-900 mb-3">
+                  <h2 className="text-2xl font-semibold text-ink mb-3">
                     {t("room.about")}
                   </h2>
 
@@ -381,7 +382,7 @@ function RoomDetails() {
 
                 <div className="mt-8">
 
-                  <h2 className="text-xl font-bold text-gray-900 mb-4">
+                  <h2 className="text-2xl font-semibold text-ink mb-4">
                     {t("room.facilities")}
                   </h2>
 
@@ -394,7 +395,7 @@ function RoomDetails() {
                       >
                         <Check
                           size={18}
-                          className="text-green-600"
+                          className="text-gold-600"
                         />
 
                         {facility.trim()}
@@ -420,9 +421,9 @@ function RoomDetails() {
 
           <div>
 
-            <div className="bg-white rounded-2xl shadow-sm p-6 sticky top-6">
+            <div className="bg-white rounded-3xl shadow-sm ring-1 ring-black/5 p-6 md:p-7 sticky top-28">
 
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">
+              <h2 className="text-2xl font-semibold text-ink mb-6">
                 {t("room.bookThisRoom")}
               </h2>
 
@@ -430,7 +431,7 @@ function RoomDetails() {
               {/* Success */}
 
               {success && (
-                <div className="bg-green-100 text-green-700 p-4 rounded-lg mb-5">
+                <div className="bg-green-50 text-green-700 ring-1 ring-green-100 p-4 rounded-xl mb-5">
                   {success}
 
                   <button
@@ -446,7 +447,7 @@ function RoomDetails() {
               {/* Error */}
 
               {error && (
-                <div className="bg-red-100 text-red-700 p-4 rounded-lg mb-5">
+                <div className="bg-red-50 text-red-700 ring-1 ring-red-100 p-4 rounded-xl mb-5 text-sm">
                   {error}
                 </div>
               )}
@@ -464,7 +465,7 @@ function RoomDetails() {
 
                   <CalendarDays
                     size={18}
-                    className="absolute left-3 top-3.5 text-gray-400"
+                    className="absolute left-3.5 top-3.5 text-gold-600"
                   />
 
                   <input
@@ -478,7 +479,7 @@ function RoomDetails() {
                         .toISOString()
                         .split("T")[0]
                     }
-                    className="w-full border rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="field pl-11"
                     required
                   />
 
@@ -495,7 +496,7 @@ function RoomDetails() {
 
                   <CalendarDays
                     size={18}
-                    className="absolute left-3 top-3.5 text-gray-400"
+                    className="absolute left-3.5 top-3.5 text-gold-600"
                   />
 
                   <input
@@ -505,7 +506,7 @@ function RoomDetails() {
                       setCheckOut(e.target.value)
                     }
                     min={checkIn || undefined}
-                    className="w-full border rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="field pl-11"
                     required
                   />
 
@@ -523,7 +524,7 @@ function RoomDetails() {
                   onChange={(e) =>
                     setGuests(Number(e.target.value))
                   }
-                  className="w-full border rounded-lg px-4 py-3 mb-5 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="field mb-5"
                 >
                   {Array.from(
                     { length: room.capacity },
@@ -554,14 +555,14 @@ function RoomDetails() {
                   }
                   placeholder={t("room.requestPlaceholder")}
                   rows="3"
-                  className="w-full border rounded-lg px-4 py-3 mb-6 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="field mb-6"
                 />
 
 
                 {/* Price */}
 
                 {nights > 0 && (
-                  <div className="bg-gray-50 rounded-xl p-4 mb-5">
+                  <div className="bg-cream rounded-2xl p-4 mb-5">
 
                     <div className="flex justify-between text-gray-600 mb-2">
                       <span>
@@ -576,10 +577,10 @@ function RoomDetails() {
                       </span>
                     </div>
 
-                    <div className="border-t pt-3 mt-3 flex justify-between font-bold text-lg">
+                    <div className="border-t border-gold-100 pt-3 mt-3 flex items-end justify-between font-semibold text-ink">
                       <span>{t("common.total")}</span>
 
-                      <span className="text-blue-600">
+                      <span className="font-display text-2xl">
                         ${totalAmount.toFixed(2)}
                       </span>
                     </div>
@@ -593,7 +594,7 @@ function RoomDetails() {
                 <button
                   type="submit"
                   disabled={bookingLoading}
-                  className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400"
+                  className="btn-gold w-full py-4"
                 >
                   {bookingLoading
                     ? t("room.booking")

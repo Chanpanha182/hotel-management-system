@@ -6,12 +6,18 @@ import {
   ArrowLeft,
   XCircle,
   Star,
+  Moon,
+  CreditCard,
+  RotateCcw,
 } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import ReviewModal from "../components/ReviewModal";
 import Stars from "../components/Stars";
 import { useLanguage } from "../i18n/useLanguage";
+
+const FALLBACK_IMAGE =
+  "https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=1000&q=80";
 
 function MyBookings() {
   const navigate = useNavigate();
@@ -21,6 +27,7 @@ function MyBookings() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [reviewBooking, setReviewBooking] = useState(null);
+  const [selectedTab, setSelectedTab] = useState(null);
   const { t, formatDate: formatLocalDate } = useLanguage();
 
   // ========================================
@@ -153,75 +160,22 @@ function MyBookings() {
   };
 
   // ========================================
-  // BOOKING STATUS STYLE
+  // STATUS STYLES
   // ========================================
 
-  const getStatusStyle = (status) => {
-    switch (status) {
-      case "confirmed":
-        return "bg-green-100 text-green-700";
-
-      case "pending":
-        return "bg-yellow-100 text-yellow-700";
-
-      case "checked_in":
-        return "bg-blue-100 text-blue-700";
-
-      case "checked_out":
-        return "bg-gray-100 text-gray-700";
-
-      case "cancelled":
-        return "bg-red-100 text-red-700";
-
-      default:
-        return "bg-gray-100 text-gray-700";
-    }
+  const STATUS_STYLES = {
+    pending: "bg-amber-50 text-amber-700 ring-amber-200",
+    confirmed: "bg-green-50 text-green-700 ring-green-200",
+    checked_in: "bg-sky-50 text-sky-700 ring-sky-200",
+    checked_out: "bg-gray-100 text-gray-600 ring-gray-200",
+    cancelled: "bg-red-50 text-red-600 ring-red-200",
   };
 
-  // ========================================
-  // PAYMENT STATUS STYLE
-  // ========================================
-
-  const getPaymentStatusStyle = (status) => {
-    switch (status) {
-      case "pending":
-        return "bg-yellow-100 text-yellow-700";
-
-      case "paid":
-        return "bg-green-100 text-green-700";
-
-      case "failed":
-        return "bg-red-100 text-red-700";
-
-      case "refunded":
-        return "bg-blue-100 text-blue-700";
-
-      default:
-        return "bg-gray-100 text-gray-700";
-    }
-  };
-
-  // ========================================
-  // PAYMENT STATUS TEXT
-  // ========================================
-
-  const getPaymentStatusText = (status) => {
-    switch (status) {
-      case "pending":
-        return t("payStatus.pending");
-
-      case "paid":
-        return t("payStatus.paid");
-
-      case "failed":
-        return t("payStatus.failed");
-
-      case "refunded":
-        return t("payStatus.refunded");
-
-      default:
-        return t("myBookings.paymentInfo");
-    }
+  const PAYMENT_STYLES = {
+    pending: "bg-amber-50 text-amber-700",
+    paid: "bg-green-50 text-green-700",
+    failed: "bg-red-50 text-red-600",
+    refunded: "bg-sky-50 text-sky-700",
   };
 
   // ========================================
@@ -279,96 +233,84 @@ function MyBookings() {
   };
 
   // ========================================
-  // PAYMENT SECTION
+  // GROUP BOOKINGS INTO TABS
   // ========================================
 
-  const renderPaymentSection = (booking) => {
+  const today = new Date().toISOString().split("T")[0];
+
+  const tabOf = (booking) => {
+    if (booking.booking_status === "cancelled") return "cancelled";
+    if (
+      booking.booking_status === "checked_out" ||
+      String(booking.check_out).slice(0, 10) < today
+    ) {
+      return "past";
+    }
+    return "upcoming";
+  };
+
+  const counts = bookings.reduce(
+    (total, booking) => ({ ...total, [tabOf(booking)]: total[tabOf(booking)] + 1 }),
+    { upcoming: 0, past: 0, cancelled: 0 }
+  );
+
+  // Open the first tab that has bookings unless the guest picked one
+  const activeTab =
+    selectedTab ||
+    ["upcoming", "past", "cancelled"].find((tab) => counts[tab] > 0) ||
+    "upcoming";
+
+  const visibleBookings = bookings.filter(
+    (booking) => tabOf(booking) === activeTab
+  );
+
+  const nightsBetween = (checkIn, checkOut) =>
+    Math.max(
+      1,
+      Math.round((new Date(checkOut) - new Date(checkIn)) / (1000 * 60 * 60 * 24))
+    );
+
+  // ========================================
+  // PAYMENT ACTION
+  // ========================================
+
+  const renderPaymentAction = (booking) => {
     const payment = payments[booking.id];
 
-    // Cancelled booking
-    if (booking.booking_status === "cancelled") {
+    if (booking.booking_status === "cancelled" || tabOf(booking) === "past") {
       return null;
     }
 
-    // No payment yet
     if (!payment) {
       return (
-        <button
-          onClick={() =>
-            navigate(`/payment/${booking.id}`)
-          }
-          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg transition"
-        >
-          {t("myBookings.payNow")}
-        </button>
+        <Link to={`/payment/${booking.id}`} className="btn-gold px-5 py-2.5 text-sm">
+          <CreditCard size={16} />
+          {t("myBookings.payNowBtn")}
+        </Link>
       );
     }
 
-// Payment is pending
-if (payment.payment_status === "pending") {
-  return (
-    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-      
-      <div
-        className={`inline-block px-4 py-2 rounded-lg font-semibold ${getPaymentStatusStyle(
-          payment.payment_status
-        )}`}
-      >
-        {getPaymentStatusText(payment.payment_status)}
-      </div>
-
-      <button
-        onClick={() => navigate(`/payment/${booking.id}`)}
-        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg transition"
-      >
-        {t("myBookings.continuePayment")}
-      </button>
-
-    </div>
-  );
-}
-
-    // Payment is paid
-    if (payment.payment_status === "paid") {
+    if (payment.payment_status === "pending") {
       return (
-        <div
-          className={`inline-block px-4 py-2 rounded-lg font-semibold ${getPaymentStatusStyle(
-            payment.payment_status
-          )}`}
+        <Link
+          to={`/payment/${booking.id}`}
+          className="inline-flex items-center gap-2 rounded-full border border-gold-300 px-5 py-2.5 text-sm font-semibold text-gold-700 transition hover:bg-gold-50"
         >
-          {getPaymentStatusText(
-            payment.payment_status
-          )}
-        </div>
+          <CreditCard size={16} />
+          {t("payment.continue")}
+        </Link>
       );
     }
 
-    // Payment failed
     if (payment.payment_status === "failed") {
       return (
-        <button
-          onClick={() =>
-            navigate(`/payment/${booking.id}`)
-          }
-          className="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-lg transition"
+        <Link
+          to={`/payment/${booking.id}`}
+          className="inline-flex items-center gap-2 rounded-full bg-red-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700"
         >
-          {t("myBookings.payFailedRetry")}
-        </button>
-      );
-    }
-
-    // Payment refunded
-    if (payment.payment_status === "refunded") {
-      return (
-        <div
-          className={`inline-block px-4 py-2 rounded-lg font-semibold ${getPaymentStatusStyle(
-            payment.payment_status
-          )}`}
-        >
-          {getPaymentStatusText(
-            payment.payment_status
-          )}
-        </div>
+          <RotateCcw size={16} />
+          {t("myBookings.retryBtn")}
+        </Link>
       );
     }
 
@@ -376,286 +318,196 @@ if (payment.payment_status === "pending") {
   };
 
   // ========================================
-  // RETURN
+  // UI
   // ========================================
+
+  const tabs = [
+    { key: "upcoming", label: t("myBookings.tabUpcoming") },
+    { key: "past", label: t("myBookings.tabPast") },
+    { key: "cancelled", label: t("myBookings.tabCancelled") },
+  ];
 
   return (
     <div className="min-h-screen">
 
       <Navbar />
 
-      <main className="max-w-6xl mx-auto px-6 py-10">
-
-        {/* ========================================
-            HEADER
-        ======================================== */}
-
-        <div className="mb-8">
-
+      {/* Header */}
+      <section className="bg-ink text-white">
+        <div className="mx-auto max-w-6xl px-6 py-14">
           <Link
             to="/rooms"
-            className="inline-flex items-center gap-2 text-gray-600 hover:text-blue-600 mb-5"
+            className="inline-flex items-center gap-2 text-sm text-gray-400 transition hover:text-gold-300"
           >
-            <ArrowLeft size={18} />
+            <ArrowLeft size={16} />
             {t("common.browseRooms")}
           </Link>
 
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="mt-4 text-4xl font-semibold md:text-5xl">
             {t("myBookings.title")}
           </h1>
 
-          <p className="text-gray-500 mt-2">
-            {t("myBookings.subtitle")}
-          </p>
-
+          <p className="mt-3 text-gray-400">{t("myBookings.subtitle")}</p>
         </div>
+      </section>
 
-        {/* ========================================
-            LOADING
-        ======================================== */}
+      <main className="mx-auto max-w-6xl px-6 py-10">
 
+        {/* Loading */}
         {loading && (
-          <div className="bg-white rounded-2xl shadow-sm p-10 text-center">
-            <p className="text-gray-500">
-              {t("myBookings.loading")}
-            </p>
+          <div className="space-y-6">
+            {[0, 1].map((i) => (
+              <div key={i} className="h-56 animate-pulse rounded-3xl bg-gray-200/70"></div>
+            ))}
           </div>
         )}
 
-        {/* ========================================
-            ERROR
-        ======================================== */}
-
+        {/* Error */}
         {!loading && error && (
-          <div className="bg-red-100 text-red-700 p-5 rounded-xl">
+          <div className="rounded-2xl bg-red-50 p-5 text-red-700 ring-1 ring-red-100">
             {error}
           </div>
         )}
 
-        {/* ========================================
-            NO BOOKINGS
-        ======================================== */}
+        {/* No bookings at all */}
+        {!loading && !error && bookings.length === 0 && (
+          <div className="rounded-3xl bg-white px-6 py-20 text-center shadow-sm ring-1 ring-black/5">
+            <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-gold-50 text-gold-600">
+              <CalendarDays size={30} />
+            </span>
 
-        {!loading &&
-          !error &&
-          bookings.length === 0 && (
-            <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
+            <h2 className="mt-6 text-3xl font-semibold text-ink">
+              {t("myBookings.empty")}
+            </h2>
 
-              <CalendarDays
-                size={50}
-                className="mx-auto text-gray-400 mb-4"
-              />
+            <p className="mt-2 text-gray-500">{t("myBookings.emptyText")}</p>
 
-              <h2 className="text-xl font-bold text-gray-900">
-                {t("myBookings.empty")}
-              </h2>
+            <Link to="/rooms" className="btn-gold mt-8">
+              {t("common.browseRooms")}
+            </Link>
+          </div>
+        )}
 
-              <p className="text-gray-500 mt-2 mb-6">
-                {t("myBookings.emptyText")}
-              </p>
-
-              <Link
-                to="/rooms"
-                className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700"
-              >
-                {t("common.browseRooms")}
-              </Link>
-
-            </div>
-          )}
-
-        {/* ========================================
-            BOOKINGS
-        ======================================== */}
-
-        {!loading &&
-          !error &&
-          bookings.length > 0 && (
-            <div className="space-y-6">
-
-              {bookings.map((booking) => (
-
-                <div
-                  key={booking.id}
-                  className="bg-white rounded-2xl shadow-sm overflow-hidden"
+        {!loading && !error && bookings.length > 0 && (
+          <>
+            {/* Tabs */}
+            <div className="mb-8 flex flex-wrap gap-2">
+              {tabs.map(({ key, label }) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setSelectedTab(key)}
+                  className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition ${
+                    activeTab === key
+                      ? "bg-ink text-white"
+                      : "bg-white text-gray-600 ring-1 ring-black/5 hover:text-ink"
+                  }`}
                 >
+                  {label}
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-xs ${
+                      activeTab === key ? "bg-white/15" : "bg-gray-100"
+                    }`}
+                  >
+                    {counts[key]}
+                  </span>
+                </button>
+              ))}
+            </div>
 
-                  <div className="grid md:grid-cols-4">
+            {visibleBookings.length === 0 && (
+              <div className="rounded-3xl bg-white px-6 py-14 text-center text-gray-500 ring-1 ring-black/5">
+                {t("myBookings.emptyTab")}
+              </div>
+            )}
 
-                    {/* ========================================
-                        ROOM IMAGE
-                    ======================================== */}
+            <div className="space-y-6">
+              {visibleBookings.map((booking) => {
+                const payment = payments[booking.id];
+                const nights = nightsBetween(booking.check_in, booking.check_out);
+                const canCancel = ["pending", "confirmed"].includes(booking.booking_status) &&
+                  tabOf(booking) === "upcoming";
 
-                    <div className="md:col-span-1">
-
+                return (
+                  <article
+                    key={booking.id}
+                    className={`overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-black/5 md:grid md:grid-cols-[260px_1fr] ${
+                      booking.booking_status === "cancelled" ? "opacity-75" : ""
+                    }`}
+                  >
+                    {/* Image */}
+                    <div className="relative h-48 md:h-full">
                       <img
-                        src={booking.image}
+                        src={booking.image || FALLBACK_IMAGE}
+                        onError={(e) => (e.currentTarget.src = FALLBACK_IMAGE)}
                         alt={booking.room_name}
-                        className="w-full h-full min-h-[220px] object-cover"
+                        className="h-full w-full object-cover"
                       />
-
+                      <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-gold-700 backdrop-blur">
+                        {t(`roomType.${booking.room_type}`)}
+                      </span>
                     </div>
 
-                    {/* ========================================
-                        BOOKING INFORMATION
-                    ======================================== */}
-
-                    <div className="md:col-span-3 p-6">
-
-                      {/* ROOM + BOOKING STATUS */}
-
-                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-
+                    {/* Content */}
+                    <div className="flex flex-col p-6 md:p-7">
+                      <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
-
-                          <p className="text-blue-600 font-medium">
-                            {t(`roomType.${booking.room_type}`)}
-                          </p>
-
-                          <h2 className="text-2xl font-bold text-gray-900">
+                          <h2 className="text-2xl font-semibold text-ink">
                             {booking.room_name}
                           </h2>
-
-                          <p className="text-gray-500 mt-1">
-                            {t("common.roomNumber", { number: booking.room_number })}
+                          <p className="mt-0.5 text-sm text-gray-500">
+                            {t("common.roomNumber", { number: booking.room_number })} ·{" "}
+                            {t("common.bookingNumber", { id: booking.id })}
                           </p>
-
                         </div>
 
-                        {/* BOOKING STATUS */}
-
                         <span
-                          className={`inline-block px-3 py-1.5 rounded-full text-sm font-semibold capitalize ${getStatusStyle(
-                            booking.booking_status
-                          )}`}
+                          className={`rounded-full px-3 py-1 text-xs font-semibold ring-1 ${
+                            STATUS_STYLES[booking.booking_status] || STATUS_STYLES.checked_out
+                          }`}
                         >
                           {t(`status.${booking.booking_status}`)}
                         </span>
-
                       </div>
 
-                      {/* ========================================
-                          DETAILS
-                      ======================================== */}
-
-                      <div className="grid sm:grid-cols-3 gap-4 mt-6">
-
-                        {/* CHECK IN */}
-
-                        <div className="flex items-center gap-3">
-
-                          <CalendarDays
-                            size={20}
-                            className="text-blue-600"
-                          />
-
-                          <div>
-
-                            <p className="text-xs text-gray-500">
-                              {t("common.checkIn")}
-                            </p>
-
-                            <p className="font-medium">
-                              {formatDate(
-                                booking.check_in
-                              )}
-                            </p>
-
-                          </div>
-
-                        </div>
-
-                        {/* CHECK OUT */}
-
-                        <div className="flex items-center gap-3">
-
-                          <CalendarDays
-                            size={20}
-                            className="text-blue-600"
-                          />
-
-                          <div>
-
-                            <p className="text-xs text-gray-500">
-                              {t("common.checkOut")}
-                            </p>
-
-                            <p className="font-medium">
-                              {formatDate(
-                                booking.check_out
-                              )}
-                            </p>
-
-                          </div>
-
-                        </div>
-
-                        {/* GUESTS */}
-
-                        <div className="flex items-center gap-3">
-
-                          <Users
-                            size={20}
-                            className="text-blue-600"
-                          />
-
-                          <div>
-
-                            <p className="text-xs text-gray-500">
-                              {t("common.guests")}
-                            </p>
-
-                            <p className="font-medium">
-                              {booking.guests}
-                            </p>
-
-                          </div>
-
-                        </div>
-
-                      </div>
-
-                      {/* ========================================
-                          BOTTOM
-                      ======================================== */}
-
-                      <div className="border-t mt-6 pt-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-
+                      {/* Stay details */}
+                      <div className="mt-5 grid grid-cols-2 gap-4 rounded-2xl bg-cream p-4 sm:grid-cols-4">
                         <div>
-
-                          <p className="text-sm text-gray-500">
-                            {t("common.totalAmount")}
-                          </p>
-
-                          <p className="text-2xl font-bold text-blue-600">
-                            $
-                            {Number(
-                              booking.total_amount
-                            ).toFixed(2)}
-                          </p>
-
-                          {/* PAYMENT STATUS / BUTTON */}
-
-                          <div className="mt-4">
-                            {renderPaymentSection(
-                              booking
-                            )}
-                          </div>
-
+                          <p className="text-xs text-gray-500">{t("common.checkIn")}</p>
+                          <p className="font-semibold text-ink">{formatDate(booking.check_in)}</p>
                         </div>
-
-                        <div className="text-sm text-gray-500">
-                          {t("common.bookingNumber", { id: booking.id })}
+                        <div>
+                          <p className="text-xs text-gray-500">{t("common.checkOut")}</p>
+                          <p className="font-semibold text-ink">{formatDate(booking.check_out)}</p>
                         </div>
-
+                        <div>
+                          <p className="text-xs text-gray-500">{t("common.guests")}</p>
+                          <p className="flex items-center gap-1.5 font-semibold text-ink">
+                            <Users size={15} className="text-gold-600" />
+                            {booking.guests}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500">{t("confirm.nightsLabel")}</p>
+                          <p className="flex items-center gap-1.5 font-semibold text-ink">
+                            <Moon size={15} className="text-gold-600" />
+                            {nights === 1 ? t("room.night") : t("room.nights", { count: nights })}
+                          </p>
+                        </div>
                       </div>
 
-                      {/* ========================================
-                          REVIEW
-                      ======================================== */}
+                      {booking.special_request && (
+                        <p className="mt-4 text-sm text-gray-500">
+                          <span className="font-semibold text-gray-700">
+                            {t("common.specialRequest")}:
+                          </span>{" "}
+                          {booking.special_request}
+                        </p>
+                      )}
 
+                      {/* Review */}
                       {Number(booking.can_review) === 1 && (
-                        <div className="mt-5 flex flex-col gap-3 rounded-xl bg-gold-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="mt-5 flex flex-col gap-3 rounded-2xl bg-gold-50 p-4 sm:flex-row sm:items-center sm:justify-between">
                           <p className="text-sm text-gray-700">
                             {t("myBookings.reviewPrompt")}
                           </p>
@@ -678,95 +530,53 @@ if (payment.payment_status === "pending") {
                         </p>
                       )}
 
-                      {/* ========================================
-                          CANCEL BOOKING
-                      ======================================== */}
+                      {/* Footer: total, payment, actions */}
+                      <div className="mt-6 flex flex-col gap-4 border-t border-gray-100 pt-5 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+                          <div>
+                            <p className="text-xs text-gray-500">{t("common.totalAmount")}</p>
+                            <p className="font-display text-2xl font-semibold text-ink">
+                              ${Number(booking.total_amount).toFixed(2)}
+                            </p>
+                          </div>
 
-                      {booking.booking_status !== "cancelled" &&
-                        booking.booking_status !== "checked_out" && (
-                          <div className="mt-5 pt-5 border-t">
+                          {payment && (
+                            <div className="text-sm">
+                              <span
+                                className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${
+                                  PAYMENT_STYLES[payment.payment_status] || "bg-gray-100 text-gray-600"
+                                }`}
+                              >
+                                {t(`payStatusShort.${payment.payment_status}`)}
+                              </span>
+                              <span className="ml-2 text-gray-500">
+                                {payment.payment_method || t("myBookings.notSpecified")}
+                              </span>
+                            </div>
+                          )}
+                        </div>
 
+                        <div className="flex flex-wrap items-center gap-3">
+                          {canCancel && (
                             <button
-                              onClick={() =>
-                                handleCancelBooking(
-                                  booking.id
-                                )
-                              }
-                              className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold px-5 py-2.5 rounded-lg transition"
+                              onClick={() => handleCancelBooking(booking.id)}
+                              className="inline-flex items-center gap-1.5 rounded-full px-4 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-50"
                             >
-                              <XCircle size={18} />
+                              <XCircle size={16} />
                               {t("myBookings.cancel")}
                             </button>
+                          )}
 
-                          </div>
-                        )}
-
-                      {/* ========================================
-                          PAYMENT INFORMATION
-                      ======================================== */}
-
-                      {payments[booking.id] && (
-                        <div className="mt-5 bg-gray-50 rounded-lg p-4">
-
-                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-
-                            <div>
-
-                              <p className="text-sm font-semibold text-gray-700">
-                                {t("myBookings.paymentInfo")}
-                              </p>
-
-                              <p className="text-sm text-gray-600 mt-1">
-                                {t("myBookings.method")}{" "}
-                                {payments[booking.id]
-                                  .payment_method ||
-                                  t("myBookings.notSpecified")}
-                              </p>
-
-                            </div>
-
-                            <span
-                              className={`inline-block px-3 py-1.5 rounded-full text-sm font-semibold capitalize ${getPaymentStatusStyle(
-                                payments[booking.id]
-                                  .payment_status
-                              )}`}
-                            >
-                              {t(`payStatusShort.${payments[booking.id].payment_status}`)}
-                            </span>
-
-                          </div>
-
+                          {renderPaymentAction(booking)}
                         </div>
-                      )}
-
-                      {/* ========================================
-                          SPECIAL REQUEST
-                      ======================================== */}
-
-                      {booking.special_request && (
-                        <div className="mt-5 bg-gray-50 rounded-lg p-4">
-
-                          <p className="text-sm font-semibold text-gray-700">
-                            {t("common.specialRequest")}
-                          </p>
-
-                          <p className="text-sm text-gray-600 mt-1">
-                            {booking.special_request}
-                          </p>
-
-                        </div>
-                      )}
-
+                      </div>
                     </div>
-
-                  </div>
-
-                </div>
-
-              ))}
-
+                  </article>
+                );
+              })}
             </div>
-          )}
+          </>
+        )}
 
       </main>
 

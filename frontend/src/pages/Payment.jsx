@@ -1,6 +1,15 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { CheckCircle, CreditCard, QrCode } from "lucide-react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import {
+    ArrowLeft,
+    Banknote,
+    CheckCircle,
+    CreditCard,
+    FlaskConical,
+    Loader2,
+    QrCode,
+    ShieldCheck,
+} from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useLanguage } from "../i18n/useLanguage";
@@ -16,13 +25,13 @@ const PAYWAY_ENABLED = false;
 const Payment = () => {
     const { bookingId } = useParams();
     const navigate = useNavigate();
-    const { t } = useLanguage();
+    const { t, formatDate } = useLanguage();
 
     const [payment, setPayment] = useState(null);
     const [booking, setBooking] = useState(null);
 
     const [paymentMethod, setPaymentMethod] =
-        useState("Cash at Hotel");
+        useState(KHQR_METHOD);
 
     const [loading, setLoading] = useState(true);
     const [processing, setProcessing] = useState(false);
@@ -457,85 +466,61 @@ const Payment = () => {
     };
 
     // =========================================================
-    // LOADING
+    // SIMPLE FULL-PAGE STATES
     // =========================================================
+
+    const statePage = (children) => (
+        <div className="min-h-screen">
+            <Navbar />
+            <main className="mx-auto flex max-w-xl flex-col items-center px-6 py-28 text-center">
+                {children}
+            </main>
+            <Footer />
+        </div>
+    );
 
     if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <p className="text-gray-500">
-                    {t("payment.loading")}
-                </p>
-            </div>
+        return statePage(
+            <>
+                <Loader2 size={36} className="animate-spin text-gold-600" />
+                <p className="mt-4 text-gray-500">{t("payment.loading")}</p>
+            </>
         );
     }
-
-    // =========================================================
-    // CHECKING PAYMENT
-    // =========================================================
 
     if (checkingPayment) {
-        return (
-            <div className="min-h-screen flex items-center justify-center px-4">
-                <div className="text-center">
-
-                    <div className="mb-4">
-                        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mx-auto"></div>
-                    </div>
-
-                    <h2 className="text-xl font-bold text-gray-800">
-                        {t("payment.checking")}
-                    </h2>
-
-                    <p className="text-gray-500 mt-2">
-                        {t("payment.checkingText")}
-                    </p>
-
-                </div>
-            </div>
+        return statePage(
+            <>
+                <Loader2 size={40} className="animate-spin text-gold-600" />
+                <h2 className="mt-5 text-2xl font-semibold text-ink">
+                    {t("payment.checking")}
+                </h2>
+                <p className="mt-2 text-gray-500">{t("payment.checkingText")}</p>
+            </>
         );
     }
-
-    // =========================================================
-    // ERROR
-    // =========================================================
 
     if (error && !booking) {
-        return (
-            <div className="min-h-screen flex items-center justify-center px-4">
-                <div className="text-center">
-
-                    <p className="text-red-500 mb-4">
-                        {error}
-                    </p>
-
-                    <button
-                        onClick={() =>
-                            navigate(
-                                "/my-bookings"
-                            )
-                        }
-                        className="bg-blue-600 text-white px-5 py-2 rounded-lg"
-                    >
-                        {t("payment.backToBookings")}
-                    </button>
-
+        return statePage(
+            <>
+                <div className="rounded-2xl bg-red-50 p-5 text-red-700 ring-1 ring-red-100">
+                    {error}
                 </div>
-            </div>
+                <Link to="/my-bookings" className="btn-gold mt-6">
+                    {t("payment.backToBookings")}
+                </Link>
+            </>
         );
     }
 
-    // =========================================================
-    // BOOKING NOT FOUND
-    // =========================================================
-
     if (!booking) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <p className="text-gray-500">
-                    {t("payment.notFound")}
-                </p>
-            </div>
+        return statePage(
+            <>
+                <p className="text-gray-500">{t("payment.notFound")}</p>
+                <Link to="/my-bookings" className="btn-gold mt-6">
+                    {t("payment.backToBookings")}
+                </Link>
+            </>
         );
     }
 
@@ -543,6 +528,40 @@ const Payment = () => {
         Number(
             booking.total_amount
         ).toFixed(2);
+
+    const isPaid = payment?.payment_status === "paid";
+
+    // Values stay in English: they are saved as the payment method
+    const methods = [
+        {
+            value: KHQR_METHOD,
+            icon: QrCode,
+            title: t("payment.khqr"),
+            text: t("payment.khqrText"),
+        },
+        {
+            value: "Cash at Hotel",
+            icon: Banknote,
+            title: t("payment.cash"),
+            text: t("payment.cashText"),
+        },
+        ...(PAYWAY_ENABLED
+            ? [
+                  {
+                      value: "ABA PayWay QR",
+                      icon: QrCode,
+                      title: t("payment.payway"),
+                      text: t("payment.paywayText"),
+                  },
+              ]
+            : []),
+        {
+            value: "Demo Payment",
+            icon: FlaskConical,
+            title: t("payment.demo"),
+            text: t("payment.demoText"),
+        },
+    ];
 
     // =========================================================
     // UI
@@ -552,405 +571,209 @@ const Payment = () => {
         <div className="min-h-screen">
             <Navbar />
 
-            <div className="max-w-4xl mx-auto py-10 px-4">
-
-                {/* HEADER */}
-
-                <div className="mb-8">
-
-                    <button
-                        onClick={() =>
-                            navigate(
-                                "/my-bookings"
-                            )
-                        }
-                        className="text-blue-600 hover:underline mb-3"
+            {/* Header */}
+            <section className="bg-ink text-white">
+                <div className="mx-auto max-w-6xl px-6 py-12">
+                    <Link
+                        to="/my-bookings"
+                        className="inline-flex items-center gap-2 text-sm text-gray-400 transition hover:text-gold-300"
                     >
-                        ← {t("payment.backToBookings")}
-                    </button>
+                        <ArrowLeft size={16} />
+                        {t("payment.backToBookings")}
+                    </Link>
 
-                    <h1 className="text-3xl font-bold text-gray-800">
+                    <h1 className="mt-4 text-4xl font-semibold md:text-5xl">
                         {t("payment.title")}
                     </h1>
 
-                    <p className="text-gray-500 mt-2">
+                    <p className="mt-3 flex items-center gap-2 text-gray-400">
+                        <ShieldCheck size={16} className="text-gold-400" />
                         {t("payment.subtitle")}
                     </p>
-
                 </div>
+            </section>
 
-                <div className="grid md:grid-cols-2 gap-6">
+            <main className="mx-auto grid max-w-6xl gap-8 px-6 py-10 lg:grid-cols-[1fr_380px]">
 
-                    {/* BOOKING SUMMARY */}
+                {/* PAYMENT METHOD */}
+                <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-black/5 md:p-8">
+                    <h2 className="text-2xl font-semibold text-ink">
+                        {t("payment.method")}
+                    </h2>
 
-                    <div className="bg-white rounded-2xl shadow p-6">
-
-                        <h2 className="text-xl font-semibold mb-5">
-                            {t("payment.summary")}
-                        </h2>
-
-                        <div className="space-y-4">
-
-                            <div>
-                                <p className="text-sm text-gray-500">
-                                    {t("common.room")}
-                                </p>
-
-                                <p className="font-semibold">
-                                    {booking.room_name}
-                                </p>
-
-                                <p className="text-sm text-gray-500">
-                                    {t("common.roomNumber", { number: booking.room_number })}
-                                </p>
-                            </div>
-
-                            <div>
-                                <p className="text-sm text-gray-500">
-                                    {t("common.checkIn")}
-                                </p>
-
-                                <p className="font-medium">
-                                    {booking.check_in}
-                                </p>
-                            </div>
-
-                            <div>
-                                <p className="text-sm text-gray-500">
-                                    {t("common.checkOut")}
-                                </p>
-
-                                <p className="font-medium">
-                                    {booking.check_out}
-                                </p>
-                            </div>
-
-                            <div>
-                                <p className="text-sm text-gray-500">
-                                    {t("common.guests")}
-                                </p>
-
-                                <p className="font-medium">
-                                    {booking.guests}
-                                </p>
-                            </div>
-
-                            <div className="border-t pt-4">
-
-                                <p className="text-sm text-gray-500">
-                                    {t("common.totalAmount")}
-                                </p>
-
-                                <p className="text-3xl font-bold text-blue-600">
-                                    ${totalAmount}
-                                </p>
-
-                            </div>
-
+                    {isPaid ? (
+                        <div className="mt-6 flex items-center gap-3 rounded-2xl bg-green-50 p-5 text-green-700 ring-1 ring-green-100">
+                            <CheckCircle size={24} />
+                            <p className="font-semibold">{t("payment.alreadyPaid")}</p>
                         </div>
+                    ) : (
+                        <>
+                            <div className="mt-6 space-y-3">
+                                {methods.map(({ value, icon: Icon, title, text }) => {
+                                    const selected = paymentMethod === value;
 
-                    </div>
+                                    return (
+                                        <label
+                                            key={value}
+                                            className={`flex cursor-pointer items-center gap-4 rounded-2xl border-2 p-4 transition ${
+                                                selected
+                                                    ? "border-gold-500 bg-gold-50"
+                                                    : "border-gray-100 hover:border-gray-200"
+                                            }`}
+                                        >
+                                            <input
+                                                type="radio"
+                                                name="payment"
+                                                value={value}
+                                                checked={selected}
+                                                onChange={(e) => setPaymentMethod(e.target.value)}
+                                                className="sr-only"
+                                            />
 
-                    {/* PAYMENT */}
+                                            <span
+                                                className={`grid h-12 w-12 shrink-0 place-items-center rounded-xl ${
+                                                    selected ? "bg-gold-600 text-white" : "bg-gray-100 text-gray-500"
+                                                }`}
+                                            >
+                                                <Icon size={22} />
+                                            </span>
 
-                    <div className="bg-white rounded-2xl shadow p-6">
+                                            <span className="min-w-0 flex-1">
+                                                <span className="block font-semibold text-ink">{title}</span>
+                                                <span className="block text-sm text-gray-500">{text}</span>
+                                            </span>
 
-                        <h2 className="text-xl font-semibold mb-5">
-                            {t("payment.method")}
-                        </h2>
+                                            <span
+                                                className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 ${
+                                                    selected ? "border-gold-600 bg-gold-600" : "border-gray-300"
+                                                }`}
+                                            >
+                                                {selected && <span className="h-2 w-2 rounded-full bg-white"></span>}
+                                            </span>
+                                        </label>
+                                    );
+                                })}
+                            </div>
 
-                        {payment?.payment_status ===
-                        "paid" ? (
-
-                            <div className="bg-green-50 border border-green-200 rounded-xl p-5">
-
-                                <div className="flex items-center gap-3">
-
-                                    <CheckCircle
-                                        className="text-green-600"
-                                        size={24}
+                            {/* KHQR INFORMATION */}
+                            {paymentMethod === KHQR_METHOD && (
+                                <div className="mt-6 grid gap-6 rounded-3xl bg-cream p-6 md:grid-cols-[220px_1fr] md:items-center">
+                                    <img
+                                        src={KHQR_IMAGE}
+                                        alt={t("payment.qrAlt")}
+                                        className="mx-auto w-full max-w-[220px] rounded-2xl bg-white p-2 shadow-sm"
                                     />
 
-                                    <p className="text-green-700 font-semibold">
-                                        {t("payment.alreadyPaid")}
-                                    </p>
-
-                                </div>
-
-                            </div>
-
-                        ) : (
-
-                            <>
-
-                                {/* PAYMENT METHODS */}
-
-                                <div className="space-y-3">
-
-                                    {/* CASH */}
-
-                                    <label
-                                        className={`block border rounded-xl p-4 cursor-pointer transition ${
-                                            paymentMethod ===
-                                            "Cash at Hotel"
-                                                ? "border-blue-500 bg-blue-50"
-                                                : "border-gray-200 hover:border-gray-300"
-                                        }`}
-                                    >
-
-                                        <input
-                                            type="radio"
-                                            name="payment"
-                                            value="Cash at Hotel"
-                                            checked={
-                                                paymentMethod ===
-                                                "Cash at Hotel"
-                                            }
-                                            onChange={(e) =>
-                                                setPaymentMethod(
-                                                    e.target.value
-                                                )
-                                            }
-                                            className="mr-3"
-                                        />
-
-                                        <span className="font-medium">
-                                            {t("payment.cash")}
-                                        </span>
-
-                                        <p className="text-sm text-gray-500 ml-6 mt-1">
-                                            {t("payment.cashText")}
-                                        </p>
-
-                                    </label>
-
-                                    {/* ABA KHQR */}
-
-                                    <label
-                                        className={`block border rounded-xl p-4 cursor-pointer transition ${
-                                            paymentMethod ===
-                                            KHQR_METHOD
-                                                ? "border-blue-500 bg-blue-50"
-                                                : "border-gray-200 hover:border-gray-300"
-                                        }`}
-                                    >
-
-                                        <input
-                                            type="radio"
-                                            name="payment"
-                                            value={KHQR_METHOD}
-                                            checked={
-                                                paymentMethod ===
-                                                KHQR_METHOD
-                                            }
-                                            onChange={(e) =>
-                                                setPaymentMethod(
-                                                    e.target.value
-                                                )
-                                            }
-                                            className="mr-3"
-                                        />
-
-                                        <span className="font-medium">
-                                            {t("payment.khqr")}
-                                        </span>
-
-                                        <p className="text-sm text-gray-500 ml-6 mt-1">
-                                            {t("payment.khqrText")}
-                                        </p>
-
-                                    </label>
-
-                                    {/* ABA PAYWAY */}
-
-                                    {PAYWAY_ENABLED && (
-                                    <label
-                                        className={`block border rounded-xl p-4 cursor-pointer transition ${
-                                            paymentMethod ===
-                                            "ABA PayWay QR"
-                                                ? "border-blue-500 bg-blue-50"
-                                                : "border-gray-200 hover:border-gray-300"
-                                        }`}
-                                    >
-
-                                        <input
-                                            type="radio"
-                                            name="payment"
-                                            value="ABA PayWay QR"
-                                            checked={
-                                                paymentMethod ===
-                                                "ABA PayWay QR"
-                                            }
-                                            onChange={(e) =>
-                                                setPaymentMethod(
-                                                    e.target.value
-                                                )
-                                            }
-                                            className="mr-3"
-                                        />
-
-                                        <span className="font-medium">
-                                            {t("payment.payway")}
-                                        </span>
-
-                                        <p className="text-sm text-gray-500 ml-6 mt-1">
-                                            {t("payment.paywayText")}
-                                        </p>
-
-                                    </label>
-                                    )}
-
-                                    {/* DEMO */}
-
-                                    <label
-                                        className={`block border rounded-xl p-4 cursor-pointer transition ${
-                                            paymentMethod ===
-                                            "Demo Payment"
-                                                ? "border-blue-500 bg-blue-50"
-                                                : "border-gray-200 hover:border-gray-300"
-                                        }`}
-                                    >
-
-                                        <input
-                                            type="radio"
-                                            name="payment"
-                                            value="Demo Payment"
-                                            checked={
-                                                paymentMethod ===
-                                                "Demo Payment"
-                                            }
-                                            onChange={(e) =>
-                                                setPaymentMethod(
-                                                    e.target.value
-                                                )
-                                            }
-                                            className="mr-3"
-                                        />
-
-                                        <span className="font-medium">
-                                            {t("payment.demo")}
-                                        </span>
-
-                                        <p className="text-sm text-gray-500 ml-6 mt-1">
-                                            {t("payment.demoText")}
-                                        </p>
-
-                                    </label>
-
-                                </div>
-
-                                {/* KHQR INFORMATION */}
-
-                                {paymentMethod ===
-                                    KHQR_METHOD && (
-
-                                    <div className="mt-5 rounded-2xl border border-blue-200 bg-blue-50 p-5 text-center">
-
-                                        <img
-                                            src={KHQR_IMAGE}
-                                            alt={t("payment.qrAlt")}
-                                            className="mx-auto w-full max-w-[260px] rounded-xl bg-white p-2 shadow-sm"
-                                        />
-
-                                        <p className="mt-4 text-sm text-gray-600">
-                                            {t("payment.amountToPay")}
-                                        </p>
-
-                                        <p className="text-3xl font-bold text-blue-600">
+                                    <div>
+                                        <p className="text-sm text-gray-500">{t("payment.amountToPay")}</p>
+                                        <p className="font-display text-4xl font-semibold text-ink">
                                             ${totalAmount}
                                         </p>
 
-                                        <ol className="mt-4 space-y-1 text-left text-sm text-gray-600 list-decimal list-inside">
-                                            <li>{t("payment.step1")}</li>
-                                            <li>{t("payment.step2")} <strong>${totalAmount}</strong>{t("payment.step2b")}</li>
-                                            <li>{t("payment.step3a")} <strong>Booking #{bookingId}</strong> {t("payment.step3b")}</li>
-                                            <li>{t("payment.step4a")} <strong>{t("payment.iHavePaid")}</strong> {t("payment.step4b")}</li>
+                                        <ol className="mt-4 space-y-2 text-sm text-gray-600">
+                                            {[
+                                                <>{t("payment.step1")}</>,
+                                                <>
+                                                    {t("payment.step2")} <strong>${totalAmount}</strong>
+                                                    {t("payment.step2b")}
+                                                </>,
+                                                <>
+                                                    {t("payment.step3a")} <strong>Booking #{bookingId}</strong>{" "}
+                                                    {t("payment.step3b")}
+                                                </>,
+                                                <>
+                                                    {t("payment.step4a")} <strong>{t("payment.iHavePaid")}</strong>{" "}
+                                                    {t("payment.step4b")}
+                                                </>,
+                                            ].map((step, index) => (
+                                                <li key={index} className="flex gap-3">
+                                                    <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-gold-600 text-xs font-semibold text-white">
+                                                        {index + 1}
+                                                    </span>
+                                                    <span>{step}</span>
+                                                </li>
+                                            ))}
                                         </ol>
 
                                         <p className="mt-4 text-xs text-gray-500">
                                             {t("payment.staffConfirm")}
                                         </p>
-
                                     </div>
-                                )}
+                                </div>
+                            )}
 
-                                {/* ABA INFORMATION */}
+                            {/* ABA PAYWAY INFORMATION (only when PayWay is turned on) */}
+                            {paymentMethod === "ABA PayWay QR" && (
+                                <div className="mt-6 rounded-2xl bg-cream p-5 text-sm text-gray-600">
+                                    Click the payment button to continue to the ABA PayWay payment page.
+                                </div>
+                            )}
+                        </>
+                    )}
+                </section>
 
-                                {paymentMethod ===
-                                    "ABA PayWay QR" && (
+                {/* BOOKING SUMMARY */}
+                <aside className="lg:sticky lg:top-28 lg:self-start">
+                    <div className="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-black/5">
+                        {booking.image && (
+                            <img
+                                src={booking.image}
+                                alt={booking.room_name}
+                                className="h-40 w-full object-cover"
+                            />
+                        )}
 
-                                    <div className="mt-5 border border-blue-200 bg-blue-50 rounded-2xl p-5">
+                        <div className="p-6">
+                            <p className="eyebrow">{t("payment.summary")}</p>
 
-                                        <div className="flex items-center gap-2 mb-4">
+                            <h2 className="mt-2 text-2xl font-semibold text-ink">
+                                {booking.room_name}
+                            </h2>
+                            <p className="text-sm text-gray-500">
+                                {t("common.roomNumber", { number: booking.room_number })} ·{" "}
+                                {t("common.bookingNumber", { id: booking.id })}
+                            </p>
 
-                                            <QrCode
-                                                size={22}
-                                                className="text-blue-600"
-                                            />
+                            <dl className="mt-5 space-y-3 text-sm">
+                                <div className="flex justify-between gap-4">
+                                    <dt className="text-gray-500">{t("common.checkIn")}</dt>
+                                    <dd className="font-semibold text-ink">{formatDate(booking.check_in)}</dd>
+                                </div>
+                                <div className="flex justify-between gap-4">
+                                    <dt className="text-gray-500">{t("common.checkOut")}</dt>
+                                    <dd className="font-semibold text-ink">{formatDate(booking.check_out)}</dd>
+                                </div>
+                                <div className="flex justify-between gap-4">
+                                    <dt className="text-gray-500">{t("common.guests")}</dt>
+                                    <dd className="font-semibold text-ink">{booking.guests}</dd>
+                                </div>
+                            </dl>
 
-                                            <h3 className="font-semibold text-gray-800">
-                                                ABA PayWay
-                                            </h3>
+                            <div className="mt-5 flex items-end justify-between border-t border-gray-100 pt-5">
+                                <span className="text-gray-500">{t("common.totalAmount")}</span>
+                                <span className="font-display text-3xl font-semibold text-ink">
+                                    ${totalAmount}
+                                </span>
+                            </div>
 
-                                        </div>
+                            {error && (
+                                <p className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-700 ring-1 ring-red-100">
+                                    {error}
+                                </p>
+                            )}
 
-                                        <div className="bg-white rounded-xl p-4">
-
-                                            <p className="text-sm text-gray-600">
-                                                Click the payment button below to continue to the ABA PayWay Sandbox payment page.
-                                            </p>
-
-                                            <div className="mt-4 bg-blue-50 rounded-lg p-4">
-
-                                                <p className="text-sm font-medium text-gray-700">
-                                                    Payment Amount
-                                                </p>
-
-                                                <p className="text-2xl font-bold text-blue-600 mt-1">
-                                                    ${totalAmount}
-                                                </p>
-
-                                            </div>
-
-                                            <p className="text-xs text-gray-500 mt-4">
-                                                This project is using the ABA PayWay Sandbox environment for testing.
-                                            </p>
-
-                                        </div>
-
-                                    </div>
-                                )}
-
-                                {/* ERROR */}
-
-                                {error && (
-                                    <p className="text-red-500 text-sm mt-4">
-                                        {error}
-                                    </p>
-                                )}
-
-                                {/* PAYMENT BUTTON */}
-
+                            {!isPaid && (
                                 <button
                                     onClick={handlePayment}
-                                    disabled={
-                                        processing ||
-                                        checkingPayment
-                                    }
-                                    className="w-full mt-6 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-3 rounded-xl transition flex items-center justify-center gap-2"
+                                    disabled={processing || checkingPayment}
+                                    className="btn-gold mt-6 w-full py-4"
                                 >
-
-                                    {paymentMethod ===
-                                    "ABA PayWay QR" ||
-                                    paymentMethod ===
-                                    KHQR_METHOD ? (
-                                        <QrCode
-                                            size={20}
-                                        />
+                                    {processing ? (
+                                        <Loader2 size={18} className="animate-spin" />
+                                    ) : paymentMethod === KHQR_METHOD || paymentMethod === "ABA PayWay QR" ? (
+                                        <QrCode size={18} />
                                     ) : (
-                                        <CreditCard
-                                            size={20}
-                                        />
+                                        <CreditCard size={18} />
                                     )}
 
                                     {processing
@@ -962,18 +785,12 @@ const Payment = () => {
                                                   ? t("payment.iHavePaid")
                                                   : t("payment.continue")
                                           } - $${totalAmount}`}
-
                                 </button>
-
-                            </>
-
-                        )}
-
+                            )}
+                        </div>
                     </div>
-
-                </div>
-
-            </div>
+                </aside>
+            </main>
 
             <Footer />
         </div>

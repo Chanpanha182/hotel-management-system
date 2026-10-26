@@ -1,16 +1,22 @@
 import { Link, useLocation } from "react-router-dom";
 import {
-  CheckCircle,
+  CheckCircle2,
   CalendarDays,
   Users,
-  BedDouble,
+  Moon,
   CreditCard,
-  Home,
   ClipboardList,
+  ArrowLeft,
+  Mail,
+  QrCode,
+  BadgeCheck,
 } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useLanguage } from "../i18n/useLanguage";
+
+const FALLBACK_IMAGE =
+  "https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=1200&q=80";
 
 function BookingConfirmation() {
   const location = useLocation();
@@ -21,212 +27,186 @@ function BookingConfirmation() {
   if (!booking) {
     return (
       <div className="min-h-screen">
-      <Navbar />
-      <div className="flex items-center justify-center px-6 py-24">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-3">
+        <Navbar />
+
+        <main className="mx-auto max-w-xl px-6 py-24 text-center">
+          <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-gold-50 text-gold-600">
+            <ClipboardList size={30} />
+          </span>
+
+          <h1 className="mt-6 text-3xl font-semibold text-ink">
             {t("confirm.notFoundTitle")}
           </h1>
 
-          <p className="text-gray-500 mb-6">
-            {t("confirm.notFoundText")}
-          </p>
+          <p className="mt-3 text-gray-500">{t("confirm.notFoundText")}</p>
 
-          <Link
-            to="/my-bookings"
-            className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold"
-          >
+          <Link to="/my-bookings" className="btn-gold mt-8">
             <ClipboardList size={18} />
             {t("nav.myBookings")}
           </Link>
-        </div>
-      </div>
-      <Footer />
+        </main>
+
+        <Footer />
       </div>
     );
   }
 
+  const nights = Number(booking.nights) || 0;
+
+  const details = [
+    { icon: CalendarDays, label: t("common.checkIn"), value: formatDate(booking.check_in) },
+    { icon: CalendarDays, label: t("common.checkOut"), value: formatDate(booking.check_out) },
+    {
+      icon: Users,
+      label: t("common.guests"),
+      value:
+        Number(booking.guests) === 1
+          ? t("home.guestOption1")
+          : t("home.guestOptionN", { count: booking.guests }),
+    },
+    {
+      icon: Moon,
+      label: t("confirm.nightsLabel"),
+      value: nights === 1 ? t("room.night") : t("room.nights", { count: nights }),
+    },
+  ];
+
+  const steps = [
+    { icon: Mail, title: t("confirm.step1Title"), text: t("confirm.step1Text") },
+    { icon: QrCode, title: t("confirm.step2Title"), text: t("confirm.step2Text") },
+    { icon: BadgeCheck, title: t("confirm.step3Title"), text: t("confirm.step3Text") },
+  ];
+
   return (
     <div className="min-h-screen">
       <Navbar />
-      <main className="max-w-4xl mx-auto px-6 py-12">
 
-        {/* Success Header */}
-        <div className="text-center mb-10">
-          <CheckCircle
-            size={72}
-            className="mx-auto text-green-500 mb-5"
-          />
+      <main className="mx-auto max-w-5xl px-6 py-12 md:py-16">
 
-          <h1 className="text-3xl font-bold text-gray-900">
+        {/* Success header */}
+        <div className="text-center">
+          <span className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-green-50 text-green-600 ring-8 ring-green-50/50">
+            <CheckCircle2 size={44} />
+          </span>
+
+          <h1 className="mt-6 text-4xl font-semibold text-ink md:text-5xl">
             {t("confirm.title")}
           </h1>
 
-          <p className="text-gray-500 mt-2">
-            {t("confirm.text")}
-          </p>
+          <p className="mx-auto mt-3 max-w-xl text-gray-500">{t("confirm.text")}</p>
 
-          <p className="text-gray-600 mt-3">
-            {t("confirm.bookingId")}
-            <span className="font-bold text-blue-600 ml-2">
-              #{booking.booking_id}
-            </span>
+          <p className="mt-5 inline-flex items-center gap-2 rounded-full bg-white px-5 py-2 text-sm shadow-sm ring-1 ring-black/5">
+            <span className="text-gray-500">{t("confirm.bookingId")}</span>
+            <span className="font-semibold text-gold-700">#{booking.booking_id}</span>
           </p>
         </div>
 
-        {/* Booking Card */}
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+        <div className="mt-12 grid gap-8 lg:grid-cols-[1.4fr_1fr]">
 
-          {/* Room Header */}
-          <div className="bg-blue-600 text-white p-6">
-            <div className="flex items-center gap-3">
-              <BedDouble size={28} />
+          {/* Booking card */}
+          <section className="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-black/5">
+            <div className="relative h-48 md:h-56">
+              <img
+                src={booking.room_image || FALLBACK_IMAGE}
+                onError={(e) => (e.currentTarget.src = FALLBACK_IMAGE)}
+                alt={booking.room_name}
+                className="h-full w-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/20 to-transparent"></div>
 
-              <div>
-                <h2 className="text-xl font-bold">
-                  {booking.room_name}
-                </h2>
+              <div className="absolute bottom-5 left-6 right-6 flex items-end justify-between gap-4 text-white">
+                <div>
+                  <h2 className="text-2xl font-semibold">{booking.room_name}</h2>
+                  <p className="text-sm text-white/80">
+                    {t("common.roomNumber", { number: booking.room_number })}
+                  </p>
+                </div>
 
-                <p className="text-blue-100">
-                  {t("common.roomNumber", { number: booking.room_number })}
-                </p>
+                <span className="rounded-full bg-amber-400/90 px-3 py-1 text-xs font-semibold text-ink">
+                  {t(`status.${booking.booking_status}`)}
+                </span>
               </div>
             </div>
-          </div>
 
-          {/* Details */}
-          <div className="p-6">
-
-            <div className="grid md:grid-cols-2 gap-5">
-
-              {/* Check In */}
-              <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-xl">
-                <CalendarDays className="text-blue-600" size={24} />
-
-                <div>
-                  <p className="text-sm text-gray-500">
-                    {t("common.checkIn")}
-                  </p>
-
-                  <p className="font-semibold text-gray-900">
-                    {formatDate(booking.check_in)}
-                  </p>
-                </div>
+            <div className="p-6 md:p-8">
+              <div className="grid gap-4 sm:grid-cols-2">
+                {details.map(({ icon: Icon, label, value }) => (
+                  <div key={label} className="flex items-center gap-4 rounded-2xl bg-cream p-4">
+                    <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-white text-gold-600 shadow-sm">
+                      <Icon size={20} />
+                    </span>
+                    <div>
+                      <p className="text-xs text-gray-500">{label}</p>
+                      <p className="font-semibold text-ink">{value}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
 
-              {/* Check Out */}
-              <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-xl">
-                <CalendarDays className="text-blue-600" size={24} />
-
-                <div>
-                  <p className="text-sm text-gray-500">
-                    {t("common.checkOut")}
+              {booking.special_request && (
+                <div className="mt-6 rounded-2xl border border-dashed border-gold-200 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-gold-700">
+                    {t("common.specialRequest")}
                   </p>
-
-                  <p className="font-semibold text-gray-900">
-                    {formatDate(booking.check_out)}
-                  </p>
+                  <p className="mt-1 text-gray-600">{booking.special_request}</p>
                 </div>
-              </div>
+              )}
 
-              {/* Guests */}
-              <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-xl">
-                <Users className="text-blue-600" size={24} />
-
-                <div>
-                  <p className="text-sm text-gray-500">
-                    {t("common.guests")}
-                  </p>
-
-                  <p className="font-semibold text-gray-900">
-                    {booking.guests === 1
-                      ? t("home.guestOption1")
-                      : t("home.guestOptionN", { count: booking.guests })}
-                  </p>
-                </div>
-              </div>
-
-              {/* Status */}
-              <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-xl">
-                <CheckCircle className="text-green-600" size={24} />
-
-                <div>
-                  <p className="text-sm text-gray-500">
-                    {t("confirm.bookingStatus")}
-                  </p>
-
-                  <p className="font-semibold text-yellow-600 capitalize">
-                    {t(`status.${booking.booking_status}`)}
-                  </p>
-                </div>
-              </div>
-
-            </div>
-
-            {/* Special Request */}
-            {booking.special_request && (
-              <div className="mt-6">
-                <h3 className="font-semibold text-gray-900 mb-2">
-                  {t("common.specialRequest")}
-                </h3>
-
-                <p className="bg-gray-50 rounded-xl p-4 text-gray-600">
-                  {booking.special_request}
-                </p>
-              </div>
-            )}
-
-            {/* Total */}
-            <div className="border-t mt-8 pt-6">
-              <div className="flex justify-between items-center">
-
-                <div className="flex items-center gap-3">
-                  <CreditCard className="text-blue-600" />
-
-                  <span className="text-lg font-semibold">
-                    {t("common.totalAmount")}
-                  </span>
-                </div>
-
-                <span className="text-2xl font-bold text-blue-600">
+              <div className="mt-8 flex items-center justify-between border-t border-gray-100 pt-6">
+                <span className="text-gray-500">{t("common.totalAmount")}</span>
+                <span className="font-display text-3xl font-semibold text-ink">
                   ${Number(booking.total_amount).toFixed(2)}
                 </span>
-
               </div>
             </div>
+          </section>
 
-            {/* Actions */}
-            <div className="grid sm:grid-cols-2 gap-4 mt-8">
+          {/* Next steps + actions */}
+          <aside className="flex flex-col gap-6">
+            <section className="rounded-3xl bg-ink p-6 text-white md:p-8">
+              <h2 className="text-2xl font-semibold">{t("confirm.nextTitle")}</h2>
 
-              <Link
-                to={`/payment/${booking.booking_id}`}
-                className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition"
-              >
-                <CreditCard size={18} />
-                {t("confirm.goToPayment")}
-              </Link>
+              <ol className="mt-6 space-y-5">
+                {steps.map(({ icon: Icon, title, text }, index) => (
+                  <li key={title} className="flex gap-4">
+                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-gold-500/20 text-gold-300">
+                      <Icon size={18} />
+                    </span>
+                    <div>
+                      <p className="font-semibold">
+                        {index + 1}. {title}
+                      </p>
+                      <p className="mt-0.5 text-sm text-gray-400">{text}</p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </section>
 
-              <Link
-                to="/my-bookings"
-                className="flex items-center justify-center gap-2 border border-gray-300 hover:bg-gray-50 text-gray-700 py-3 rounded-lg font-semibold transition"
-              >
-                <ClipboardList size={18} />
-                {t("nav.myBookings")}
-              </Link>
+            <Link to={`/payment/${booking.booking_id}`} className="btn-gold w-full py-4">
+              <CreditCard size={18} />
+              {t("confirm.goToPayment")}
+            </Link>
 
-            </div>
+            <Link
+              to="/my-bookings"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-6 py-3.5 font-semibold text-gray-700 transition hover:border-gold-400 hover:text-gold-700"
+            >
+              <ClipboardList size={18} />
+              {t("nav.myBookings")}
+            </Link>
 
             <Link
               to="/"
-              className="flex items-center justify-center gap-2 mt-4 text-gray-500 hover:text-blue-600 transition"
+              className="inline-flex items-center justify-center gap-2 text-sm text-gray-500 hover:text-gold-700"
             >
-              <Home size={18} />
+              <ArrowLeft size={16} />
               {t("confirm.backHome")}
             </Link>
-
-          </div>
+          </aside>
         </div>
       </main>
+
       <Footer />
     </div>
   );
