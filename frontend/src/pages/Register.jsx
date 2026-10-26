@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "../components/AuthLayout";
+import { useLanguage } from "../i18n/useLanguage";
 
 function Register() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -70,8 +72,8 @@ function Register() {
 
   return (
     <AuthLayout
-      title="Create an account"
-      subtitle="Join us and book your stay in minutes."
+      title={t("register.title")}
+      subtitle={t("register.subtitle")}
       image="https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1400&q=80"
     >
 
@@ -93,7 +95,7 @@ function Register() {
 
           {/* Name */}
           <label className="mb-2 block text-sm font-medium text-gray-700">
-            Full Name
+            {t("register.fullName")}
           </label>
 
           <input
@@ -101,14 +103,14 @@ function Register() {
             name="name"
             value={formData.name}
             onChange={handleChange}
-            placeholder="Enter your name"
+            placeholder={t("register.namePlaceholder")}
             required
             className="field mb-5"
           />
 
           {/* Email */}
           <label className="mb-2 block text-sm font-medium text-gray-700">
-            Email
+            {t("common.email")}
           </label>
 
           <input
@@ -116,14 +118,14 @@ function Register() {
             name="email"
             value={formData.email}
             onChange={handleChange}
-            placeholder="Enter your email"
+            placeholder={t("login.emailPlaceholder")}
             required
             className="field mb-5"
           />
 
           {/* Phone */}
           <label className="mb-2 block text-sm font-medium text-gray-700">
-            Phone
+            {t("register.phone")}
           </label>
 
           <input
@@ -131,13 +133,13 @@ function Register() {
             name="phone"
             value={formData.phone}
             onChange={handleChange}
-            placeholder="Enter your phone number"
+            placeholder={t("register.phonePlaceholder")}
             className="field mb-5"
           />
 
           {/* Password */}
           <label className="mb-2 block text-sm font-medium text-gray-700">
-            Password
+            {t("common.password")}
           </label>
 
           <input
@@ -145,7 +147,7 @@ function Register() {
             name="password"
             value={formData.password}
             onChange={handleChange}
-            placeholder="Enter your password"
+            placeholder={t("login.passwordPlaceholder")}
             required
             minLength="6"
             className="field mb-6"
@@ -157,20 +159,20 @@ function Register() {
             disabled={loading}
             className="btn-gold w-full py-3.5"
           >
-            {loading ? "Creating Account..." : "Create Account"}
+            {loading ? t("register.creating") : t("register.button")}
           </button>
 
         </form>
 
         <p className="text-center text-gray-600 mt-6">
 
-          Already have an account?{" "}
+          {t("register.haveAccount")}{" "}
 
           <Link
             to="/login"
             className="font-semibold text-gold-600 hover:underline"
           >
-            Login
+            {t("nav.login")}
           </Link>
 
         </p>

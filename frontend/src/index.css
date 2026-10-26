@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Playfair Display", ui-serif, Georgia, serif;
+  --font-sans: "Inter", "Kantumruy Pro", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Playfair Display", "Kantumruy Pro", ui-serif, Georgia, serif;
 
   /* Brand gold. The blue scale is remapped to it so every existing
      blue-* class across the site picks up the brand color. */
@@ -72,4 +72,26 @@
   .eyebrow {
     @apply text-xs font-semibold uppercase tracking-[0.3em] text-gold-600;
   }
+}
+
+/* Khmer script needs more line height and no wide letter spacing.
+   Kept outside the layers so it wins over leading-* / tracking-* utilities. */
+:lang(km) body {
+  line-height: 1.7;
+}
+
+:lang(km) h1,
+:lang(km) h2,
+:lang(km) h3 {
+  line-height: 1.45;
+  letter-spacing: normal;
+}
+
+:lang(km) .italic {
+  font-style: normal;
+}
+
+:lang(km) .eyebrow,
+:lang(km) .uppercase {
+  letter-spacing: 0.02em;
 }

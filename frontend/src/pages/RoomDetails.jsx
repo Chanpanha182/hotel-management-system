@@ -13,11 +13,13 @@ import RoomGallery from "../components/RoomGallery";
 import RoomReviews from "../components/RoomReviews";
 import Stars from "../components/Stars";
 import { getRoomPhotos } from "../utils/roomPhotos";
+import { useLanguage } from "../i18n/useLanguage";
 
 function RoomDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { t } = useLanguage();
 
   const [room, setRoom] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -45,7 +47,7 @@ function RoomDetails() {
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.message || "Failed to fetch room.");
+          throw new Error(data.message || t("room.loadError"));
         }
 
         setRoom(data.data);
@@ -57,7 +59,7 @@ function RoomDetails() {
     };
 
     fetchRoom();
-  }, [id]);
+  }, [id, t]);
 
   // ========================================
   // CALCULATE NIGHTS
@@ -109,19 +111,19 @@ function RoomDetails() {
 
     // Validate dates
     if (!checkIn || !checkOut) {
-      setError("Please select check-in and check-out dates.");
+      setError(t("room.errorDates"));
       return;
     }
 
     if (nights <= 0) {
-      setError("Check-out date must be after check-in date.");
+      setError(t("room.errorOrder"));
       return;
     }
 
     // Validate guests
     if (guests < 1 || guests > room.capacity) {
       setError(
-        `Guests must be between 1 and ${room.capacity}.`
+        t("room.errorGuests", { max: room.capacity })
       );
       return;
     }
@@ -153,13 +155,18 @@ function RoomDetails() {
 
       if (!response.ok) {
         throw new Error(
-          data.message || "Booking failed."
+          data.message || t("room.bookingFailed")
         );
       }
 
      navigate("/booking-confirmation", {
   state: {
-    booking: data.data,
+    // The API reply has no room details, so add them for the summary page
+    booking: {
+      ...data.data,
+      room_name: room.room_name,
+      room_number: room.room_number,
+    },
   },
 });
     } catch (error) {
@@ -180,7 +187,7 @@ function RoomDetails() {
 
         <div className="flex justify-center items-center h-96">
           <p className="text-gray-500">
-            Loading room...
+            {t("room.loading")}
           </p>
         </div>
       </div>
@@ -198,14 +205,14 @@ function RoomDetails() {
 
         <div className="text-center py-20">
           <h1 className="text-2xl font-bold text-gray-900">
-            Room not found
+            {t("room.notFound")}
           </h1>
 
           <Link
             to="/rooms"
             className="inline-block mt-5 text-blue-600 hover:underline"
           >
-            Back to Rooms
+            {t("common.backToRooms")}
           </Link>
         </div>
       </div>
@@ -238,7 +245,7 @@ function RoomDetails() {
           className="inline-flex items-center gap-2 text-gray-600 hover:text-blue-600 mb-8"
         >
           <ArrowLeft size={18} />
-          Back to Rooms
+          {t("common.backToRooms")}
         </Link>
 
 
@@ -264,7 +271,7 @@ function RoomDetails() {
                   <div>
 
                     <p className="text-blue-600 font-medium">
-                      {room.room_type}
+                      {t(`roomType.${room.room_type}`)}
                     </p>
 
                     <h1 className="text-3xl font-bold text-gray-900 mt-1">
@@ -272,7 +279,7 @@ function RoomDetails() {
                     </h1>
 
                     <p className="text-gray-500 mt-2">
-                      Room {room.room_number}
+                      {t("common.roomNumber", { number: room.room_number })}
                     </p>
 
                     {Number(room.review_count) > 0 && (
@@ -281,8 +288,9 @@ function RoomDetails() {
                         <span className="font-semibold text-ink">
                           {Number(room.avg_rating).toFixed(1)}
                         </span>
-                        ({room.review_count}{" "}
-                        {Number(room.review_count) === 1 ? "review" : "reviews"})
+                        ({Number(room.review_count) === 1
+                          ? t("reviews.count1")
+                          : t("reviews.countN", { count: room.review_count })})
                       </p>
                     )}
 
@@ -294,7 +302,7 @@ function RoomDetails() {
                     </span>
 
                     <span className="text-gray-500">
-                      {" "} / night
+                      {" "} {t("common.perNight")}
                     </span>
                   </div>
 
@@ -310,11 +318,11 @@ function RoomDetails() {
 
                     <div>
                       <p className="text-sm text-gray-500">
-                        Guests
+                        {t("common.guests")}
                       </p>
 
                       <p className="font-semibold">
-                        {room.capacity} Guests
+                        {t("common.guestsCount", { count: room.capacity })}
                       </p>
                     </div>
                   </div>
@@ -325,7 +333,7 @@ function RoomDetails() {
 
                     <div>
                       <p className="text-sm text-gray-500">
-                        Bed
+                        {t("common.bed")}
                       </p>
 
                       <p className="font-semibold">
@@ -342,7 +350,7 @@ function RoomDetails() {
 
                     <div>
                       <p className="text-sm text-gray-500">
-                        Room Size
+                        {t("common.roomSize")}
                       </p>
 
                       <p className="font-semibold">
@@ -359,7 +367,7 @@ function RoomDetails() {
                 <div className="mt-10">
 
                   <h2 className="text-xl font-bold text-gray-900 mb-3">
-                    About this room
+                    {t("room.about")}
                   </h2>
 
                   <p className="text-gray-600 leading-7">
@@ -374,7 +382,7 @@ function RoomDetails() {
                 <div className="mt-8">
 
                   <h2 className="text-xl font-bold text-gray-900 mb-4">
-                    Room Facilities
+                    {t("room.facilities")}
                   </h2>
 
                   <div className="grid sm:grid-cols-2 gap-3">
@@ -415,7 +423,7 @@ function RoomDetails() {
             <div className="bg-white rounded-2xl shadow-sm p-6 sticky top-6">
 
               <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                Book This Room
+                {t("room.bookThisRoom")}
               </h2>
 
 
@@ -429,7 +437,7 @@ function RoomDetails() {
                     onClick={() => navigate("/my-bookings")}
                     className="block mt-2 font-semibold underline"
                   >
-                    View My Bookings
+                    {t("room.viewMyBookings")}
                   </button>
                 </div>
               )}
@@ -449,7 +457,7 @@ function RoomDetails() {
                 {/* Check In */}
 
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Check-in
+                  {t("common.checkIn")}
                 </label>
 
                 <div className="relative mb-5">
@@ -480,7 +488,7 @@ function RoomDetails() {
                 {/* Check Out */}
 
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Check-out
+                  {t("common.checkOut")}
                 </label>
 
                 <div className="relative mb-5">
@@ -507,7 +515,7 @@ function RoomDetails() {
                 {/* Guests */}
 
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Guests
+                  {t("common.guests")}
                 </label>
 
                 <select
@@ -525,10 +533,9 @@ function RoomDetails() {
                       key={number}
                       value={number}
                     >
-                      {number}{" "}
                       {number === 1
-                        ? "Guest"
-                        : "Guests"}
+                        ? t("home.guestOption1")
+                        : t("home.guestOptionN", { count: number })}
                     </option>
                   ))}
                 </select>
@@ -537,7 +544,7 @@ function RoomDetails() {
                 {/* Special Request */}
 
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Special Request
+                  {t("common.specialRequest")}
                 </label>
 
                 <textarea
@@ -545,7 +552,7 @@ function RoomDetails() {
                   onChange={(e) =>
                     setSpecialRequest(e.target.value)
                   }
-                  placeholder="Optional request..."
+                  placeholder={t("room.requestPlaceholder")}
                   rows="3"
                   className="w-full border rounded-lg px-4 py-3 mb-6 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
@@ -559,8 +566,9 @@ function RoomDetails() {
                     <div className="flex justify-between text-gray-600 mb-2">
                       <span>
                         ${Number(room.price).toFixed(2)} ×{" "}
-                        {nights} night
-                        {nights !== 1 ? "s" : ""}
+                        {nights === 1
+                          ? t("room.night")
+                          : t("room.nights", { count: nights })}
                       </span>
 
                       <span>
@@ -569,7 +577,7 @@ function RoomDetails() {
                     </div>
 
                     <div className="border-t pt-3 mt-3 flex justify-between font-bold text-lg">
-                      <span>Total</span>
+                      <span>{t("common.total")}</span>
 
                       <span className="text-blue-600">
                         ${totalAmount.toFixed(2)}
@@ -588,8 +596,8 @@ function RoomDetails() {
                   className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400"
                 >
                   {bookingLoading
-                    ? "Booking..."
-                    : "Book Now"}
+                    ? t("room.booking")
+                    : t("room.bookNow")}
                 </button>
 
               </form>

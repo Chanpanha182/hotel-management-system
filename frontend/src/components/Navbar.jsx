@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Menu, X, LogOut, User } from "lucide-react";
+import LanguageSwitch from "./LanguageSwitch";
+import { useLanguage } from "../i18n/useLanguage";
 
 // transparent: sits over a hero image until the page is scrolled
 function Navbar({ transparent = false }) {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const [isOpen, setIsOpen] = useState(false);
   // Check login status
@@ -43,10 +46,10 @@ function Navbar({ transparent = false }) {
     }`;
 
   const links = [
-    { to: "/", label: "Home", end: true },
-    { to: "/rooms", label: "Rooms" },
-    ...(user ? [{ to: "/my-bookings", label: "My Bookings" }] : []),
-    ...(user?.role === "admin" ? [{ to: "/admin", label: "Admin" }] : []),
+    { to: "/", label: t("nav.home"), end: true },
+    { to: "/rooms", label: t("nav.rooms") },
+    ...(user ? [{ to: "/my-bookings", label: t("nav.myBookings") }] : []),
+    ...(user?.role === "admin" ? [{ to: "/admin", label: t("nav.admin") }] : []),
   ];
 
   return (
@@ -104,7 +107,7 @@ function Navbar({ transparent = false }) {
 
                 <button
                   onClick={handleLogout}
-                  title="Logout"
+                  title={t("nav.logout")}
                   className={`rounded-full p-2 transition ${
                     solid
                       ? "text-gray-500 hover:bg-gray-100 hover:text-red-600"
@@ -117,25 +120,30 @@ function Navbar({ transparent = false }) {
             ) : (
               <div className="flex items-center gap-4">
                 <NavLink to="/login" className={linkClass}>
-                  Login
+                  {t("nav.login")}
                 </NavLink>
 
                 <Link to="/rooms" className="btn-gold px-5 py-2.5 text-sm">
-                  Book Now
+                  {t("nav.bookNow")}
                 </Link>
               </div>
             )}
 
+            <LanguageSwitch dark={!solid} />
+
           </div>
 
           {/* Mobile Button */}
+          <div className="flex items-center gap-3 md:hidden">
+          <LanguageSwitch dark={!solid} />
           <button
             onClick={() => setIsOpen(!isOpen)}
             className={`md:hidden ${solid ? "text-ink" : "text-white"}`}
-            aria-label="Toggle menu"
+            aria-label={t("nav.toggleMenu")}
           >
             {isOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
+          </div>
 
         </div>
 
@@ -171,7 +179,7 @@ function Navbar({ transparent = false }) {
                   className="flex items-center gap-2 px-3 py-3 text-red-600"
                 >
                   <LogOut size={18} />
-                  Logout
+                  {t("nav.logout")}
                 </button>
               </>
             ) : (
@@ -181,7 +189,7 @@ function Navbar({ transparent = false }) {
                   onClick={() => setIsOpen(false)}
                   className="block rounded-lg px-3 py-3 font-medium text-gray-700"
                 >
-                  Login
+                  {t("nav.login")}
                 </NavLink>
 
                 <Link
@@ -189,7 +197,7 @@ function Navbar({ transparent = false }) {
                   onClick={() => setIsOpen(false)}
                   className="btn-gold w-full mt-2"
                 >
-                  Create Account
+                  {t("nav.createAccount")}
                 </Link>
               </>
             )}

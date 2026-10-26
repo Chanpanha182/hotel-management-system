@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { CheckCircle, CreditCard, QrCode } from "lucide-react";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+import { useLanguage } from "../i18n/useLanguage";
 
 // Customers scan this QR (frontend/public/aba-qr.jpg) and pay directly;
 // staff then confirm the payment in Admin > Payments.
@@ -13,6 +16,7 @@ const PAYWAY_ENABLED = false;
 const Payment = () => {
     const { bookingId } = useParams();
     const navigate = useNavigate();
+    const { t } = useLanguage();
 
     const [payment, setPayment] = useState(null);
     const [booking, setBooking] = useState(null);
@@ -51,7 +55,7 @@ const Payment = () => {
 
             if (!response.ok) {
                 setError(
-                    data.message || "Failed to load payment."
+                    data.message || t("payment.loadError")
                 );
                 return;
             }
@@ -83,7 +87,7 @@ const Payment = () => {
 
         } catch (err) {
             console.error(err);
-            setError("Unable to connect to server.");
+            setError(t("common.serverError"));
         } finally {
             setLoading(false);
         }
@@ -162,7 +166,7 @@ const Payment = () => {
                 );
 
                 alert(
-                    "Payment successful! Your booking has been confirmed."
+                    t("payment.success")
                 );
 
                 // Go back to My Bookings
@@ -178,9 +182,9 @@ const Payment = () => {
             // =================================================
 
             setError(
-                `Payment is not completed yet. Status: ${
-                    paymentStatus || "Unknown"
-                }`
+                t("payment.notCompleted", {
+                    status: paymentStatus || "Unknown",
+                })
             );
 
             // Refresh payment information
@@ -411,15 +415,15 @@ const Payment = () => {
             if (!response.ok) {
                 setError(
                     data.message ||
-                        "Payment failed."
+                        t("payment.failed")
                 );
                 return;
             }
 
             alert(
                 paymentMethod === KHQR_METHOD
-                    ? "Thank you! We will confirm your payment shortly."
-                    : "Payment request created successfully!"
+                    ? t("payment.thanksKhqr")
+                    : t("payment.created")
             );
 
             navigate("/my-bookings");
@@ -428,7 +432,7 @@ const Payment = () => {
             console.error(err);
 
             setError(
-                "Unable to connect to server."
+                t("common.serverError")
             );
 
         } finally {
@@ -460,7 +464,7 @@ const Payment = () => {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <p className="text-gray-500">
-                    Loading payment...
+                    {t("payment.loading")}
                 </p>
             </div>
         );
@@ -480,11 +484,11 @@ const Payment = () => {
                     </div>
 
                     <h2 className="text-xl font-bold text-gray-800">
-                        Checking Payment
+                        {t("payment.checking")}
                     </h2>
 
                     <p className="text-gray-500 mt-2">
-                        Please wait while we confirm your ABA PayWay payment...
+                        {t("payment.checkingText")}
                     </p>
 
                 </div>
@@ -513,7 +517,7 @@ const Payment = () => {
                         }
                         className="bg-blue-600 text-white px-5 py-2 rounded-lg"
                     >
-                        Back to My Bookings
+                        {t("payment.backToBookings")}
                     </button>
 
                 </div>
@@ -529,7 +533,7 @@ const Payment = () => {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <p className="text-gray-500">
-                    Booking not found.
+                    {t("payment.notFound")}
                 </p>
             </div>
         );
@@ -545,9 +549,10 @@ const Payment = () => {
     // =========================================================
 
     return (
-        <div className="min-h-screen bg-gray-100 py-10 px-4">
+        <div className="min-h-screen">
+            <Navbar />
 
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-4xl mx-auto py-10 px-4">
 
                 {/* HEADER */}
 
@@ -561,15 +566,15 @@ const Payment = () => {
                         }
                         className="text-blue-600 hover:underline mb-3"
                     >
-                        ← Back to My Bookings
+                        ← {t("payment.backToBookings")}
                     </button>
 
                     <h1 className="text-3xl font-bold text-gray-800">
-                        Checkout
+                        {t("payment.title")}
                     </h1>
 
                     <p className="text-gray-500 mt-2">
-                        Complete your booking payment
+                        {t("payment.subtitle")}
                     </p>
 
                 </div>
@@ -581,14 +586,14 @@ const Payment = () => {
                     <div className="bg-white rounded-2xl shadow p-6">
 
                         <h2 className="text-xl font-semibold mb-5">
-                            Booking Summary
+                            {t("payment.summary")}
                         </h2>
 
                         <div className="space-y-4">
 
                             <div>
                                 <p className="text-sm text-gray-500">
-                                    Room
+                                    {t("common.room")}
                                 </p>
 
                                 <p className="font-semibold">
@@ -596,14 +601,13 @@ const Payment = () => {
                                 </p>
 
                                 <p className="text-sm text-gray-500">
-                                    Room{" "}
-                                    {booking.room_number}
+                                    {t("common.roomNumber", { number: booking.room_number })}
                                 </p>
                             </div>
 
                             <div>
                                 <p className="text-sm text-gray-500">
-                                    Check-in
+                                    {t("common.checkIn")}
                                 </p>
 
                                 <p className="font-medium">
@@ -613,7 +617,7 @@ const Payment = () => {
 
                             <div>
                                 <p className="text-sm text-gray-500">
-                                    Check-out
+                                    {t("common.checkOut")}
                                 </p>
 
                                 <p className="font-medium">
@@ -623,7 +627,7 @@ const Payment = () => {
 
                             <div>
                                 <p className="text-sm text-gray-500">
-                                    Guests
+                                    {t("common.guests")}
                                 </p>
 
                                 <p className="font-medium">
@@ -634,7 +638,7 @@ const Payment = () => {
                             <div className="border-t pt-4">
 
                                 <p className="text-sm text-gray-500">
-                                    Total Amount
+                                    {t("common.totalAmount")}
                                 </p>
 
                                 <p className="text-3xl font-bold text-blue-600">
@@ -652,7 +656,7 @@ const Payment = () => {
                     <div className="bg-white rounded-2xl shadow p-6">
 
                         <h2 className="text-xl font-semibold mb-5">
-                            Payment Method
+                            {t("payment.method")}
                         </h2>
 
                         {payment?.payment_status ===
@@ -668,7 +672,7 @@ const Payment = () => {
                                     />
 
                                     <p className="text-green-700 font-semibold">
-                                        This booking has already been paid.
+                                        {t("payment.alreadyPaid")}
                                     </p>
 
                                 </div>
@@ -711,11 +715,11 @@ const Payment = () => {
                                         />
 
                                         <span className="font-medium">
-                                            Cash at Hotel
+                                            {t("payment.cash")}
                                         </span>
 
                                         <p className="text-sm text-gray-500 ml-6 mt-1">
-                                            Pay when you arrive at the hotel.
+                                            {t("payment.cashText")}
                                         </p>
 
                                     </label>
@@ -748,11 +752,11 @@ const Payment = () => {
                                         />
 
                                         <span className="font-medium">
-                                            ABA KHQR
+                                            {t("payment.khqr")}
                                         </span>
 
                                         <p className="text-sm text-gray-500 ml-6 mt-1">
-                                            Scan the QR code with ABA or any Bakong bank app.
+                                            {t("payment.khqrText")}
                                         </p>
 
                                     </label>
@@ -786,11 +790,11 @@ const Payment = () => {
                                         />
 
                                         <span className="font-medium">
-                                            ABA PayWay QR
+                                            {t("payment.payway")}
                                         </span>
 
                                         <p className="text-sm text-gray-500 ml-6 mt-1">
-                                            Pay securely using ABA PayWay.
+                                            {t("payment.paywayText")}
                                         </p>
 
                                     </label>
@@ -824,11 +828,11 @@ const Payment = () => {
                                         />
 
                                         <span className="font-medium">
-                                            Demo Payment
+                                            {t("payment.demo")}
                                         </span>
 
                                         <p className="text-sm text-gray-500 ml-6 mt-1">
-                                            For testing the payment system only.
+                                            {t("payment.demoText")}
                                         </p>
 
                                     </label>
@@ -844,12 +848,12 @@ const Payment = () => {
 
                                         <img
                                             src={KHQR_IMAGE}
-                                            alt="ABA KHQR code"
+                                            alt={t("payment.qrAlt")}
                                             className="mx-auto w-full max-w-[260px] rounded-xl bg-white p-2 shadow-sm"
                                         />
 
                                         <p className="mt-4 text-sm text-gray-600">
-                                            Amount to pay
+                                            {t("payment.amountToPay")}
                                         </p>
 
                                         <p className="text-3xl font-bold text-blue-600">
@@ -857,14 +861,14 @@ const Payment = () => {
                                         </p>
 
                                         <ol className="mt-4 space-y-1 text-left text-sm text-gray-600 list-decimal list-inside">
-                                            <li>Open your ABA or Bakong bank app and scan the QR code.</li>
-                                            <li>Enter the amount <strong>${totalAmount}</strong>.</li>
-                                            <li>Write <strong>Booking #{bookingId}</strong> in the remark.</li>
-                                            <li>After paying, click <strong>I Have Paid</strong> below.</li>
+                                            <li>{t("payment.step1")}</li>
+                                            <li>{t("payment.step2")} <strong>${totalAmount}</strong>{t("payment.step2b")}</li>
+                                            <li>{t("payment.step3a")} <strong>Booking #{bookingId}</strong> {t("payment.step3b")}</li>
+                                            <li>{t("payment.step4a")} <strong>{t("payment.iHavePaid")}</strong> {t("payment.step4b")}</li>
                                         </ol>
 
                                         <p className="mt-4 text-xs text-gray-500">
-                                            Our staff will confirm your payment shortly.
+                                            {t("payment.staffConfirm")}
                                         </p>
 
                                     </div>
@@ -950,14 +954,14 @@ const Payment = () => {
                                     )}
 
                                     {processing
-                                        ? "Processing..."
-                                        : paymentMethod ===
-                                          "ABA PayWay QR"
-                                        ? `Pay with ABA PayWay - ${totalAmount}`
-                                        : paymentMethod ===
-                                          KHQR_METHOD
-                                        ? `I Have Paid - ${totalAmount}`
-                                        : `Continue Payment - $${totalAmount}`}
+                                        ? t("payment.processing")
+                                        : `${
+                                              paymentMethod === "ABA PayWay QR"
+                                                  ? t("payment.payWithPayway")
+                                                  : paymentMethod === KHQR_METHOD
+                                                  ? t("payment.iHavePaid")
+                                                  : t("payment.continue")
+                                          } - $${totalAmount}`}
 
                                 </button>
 
@@ -971,6 +975,7 @@ const Payment = () => {
 
             </div>
 
+            <Footer />
         </div>
     );
 };

@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "../components/AuthLayout";
+import { useLanguage } from "../i18n/useLanguage";
 
 function Login() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -63,8 +65,8 @@ function Login() {
 
   return (
     <AuthLayout
-      title="Welcome back"
-      subtitle="Log in to manage your bookings."
+      title={t("login.title")}
+      subtitle={t("login.subtitle")}
       image="https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=1400&q=80"
     >
 
@@ -79,7 +81,7 @@ function Login() {
 
           {/* Email */}
           <label className="mb-2 block text-sm font-medium text-gray-700">
-            Email
+            {t("common.email")}
           </label>
 
           <input
@@ -87,7 +89,7 @@ function Login() {
             name="email"
             value={formData.email}
             onChange={handleChange}
-            placeholder="Enter your email"
+            placeholder={t("login.emailPlaceholder")}
             required
             className="field mb-5"
           />
@@ -95,14 +97,14 @@ function Login() {
           {/* Password */}
           <div className="mb-2 flex items-center justify-between">
             <label className="block text-sm font-medium text-gray-700">
-              Password
+              {t("common.password")}
             </label>
 
             <Link
               to="/forgot-password"
               className="text-sm font-medium text-gold-600 hover:underline"
             >
-              Forgot password?
+              {t("login.forgot")}
             </Link>
           </div>
 
@@ -111,7 +113,7 @@ function Login() {
             name="password"
             value={formData.password}
             onChange={handleChange}
-            placeholder="Enter your password"
+            placeholder={t("login.passwordPlaceholder")}
             required
             className="field mb-6"
           />
@@ -122,20 +124,20 @@ function Login() {
             disabled={loading}
             className="btn-gold w-full py-3.5"
           >
-            {loading ? "Logging in..." : "Login"}
+            {loading ? t("login.loggingIn") : t("login.button")}
           </button>
 
         </form>
 
         <p className="text-center text-gray-600 mt-6">
 
-          Don't have an account?{" "}
+          {t("login.noAccount")}{" "}
 
           <Link
             to="/register"
             className="font-semibold text-gold-600 hover:underline"
           >
-            Register
+            {t("login.register")}
           </Link>
 
         </p>

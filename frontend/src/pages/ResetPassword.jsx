@@ -2,8 +2,10 @@ import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { CheckCircle } from "lucide-react";
 import AuthLayout from "../components/AuthLayout";
+import { useLanguage } from "../i18n/useLanguage";
 
 function ResetPassword() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token") || "";
@@ -20,7 +22,7 @@ function ResetPassword() {
     setError("");
 
     if (password !== confirmPassword) {
-      setError("The two passwords do not match.");
+      setError(t("reset.mismatch"));
       return;
     }
 
@@ -50,7 +52,7 @@ function ResetPassword() {
         navigate("/login");
       }, 2500);
     } catch (error) {
-      setError(error.message || "Something went wrong. Please try again.");
+      setError(error.message || t("forgot.error"));
     } finally {
       setLoading(false);
     }
@@ -58,15 +60,15 @@ function ResetPassword() {
 
   return (
     <AuthLayout
-      title="Choose a new password"
-      subtitle="Use at least 6 characters."
+      title={t("reset.title")}
+      subtitle={t("reset.subtitle")}
       image="https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1400&q=80"
     >
       {!token ? (
         <div className="bg-red-50 text-red-700 ring-1 ring-red-100 p-4 rounded-xl text-sm">
-          This reset link is not valid.{" "}
+          {t("reset.invalid")}{" "}
           <Link to="/forgot-password" className="font-semibold underline">
-            Request a new one
+            {t("reset.requestNew")}
           </Link>
           .
         </div>
@@ -77,11 +79,11 @@ function ResetPassword() {
           </span>
 
           <h2 className="mt-4 text-2xl font-semibold text-ink">
-            Password changed
+            {t("reset.changed")}
           </h2>
 
           <p className="mt-2 text-gray-600">
-            Taking you to the login page...
+            {t("reset.redirecting")}
           </p>
         </div>
       ) : (
@@ -91,35 +93,35 @@ function ResetPassword() {
               {error}{" "}
               {error.includes("expired") && (
                 <Link to="/forgot-password" className="font-semibold underline">
-                  Request a new link
+                  {t("reset.requestNewLink")}
                 </Link>
               )}
             </div>
           )}
 
           <label className="mb-2 block text-sm font-medium text-gray-700">
-            New Password
+            {t("reset.newPassword")}
           </label>
 
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter a new password"
+            placeholder={t("reset.newPlaceholder")}
             required
             minLength="6"
             className="field mb-5"
           />
 
           <label className="mb-2 block text-sm font-medium text-gray-700">
-            Confirm New Password
+            {t("reset.confirm")}
           </label>
 
           <input
             type="password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="Type it again"
+            placeholder={t("reset.confirmPlaceholder")}
             required
             minLength="6"
             className="field mb-6"
@@ -130,7 +132,7 @@ function ResetPassword() {
             disabled={loading}
             className="btn-gold w-full py-3.5"
           >
-            {loading ? "Saving..." : "Change Password"}
+            {loading ? t("reset.saving") : t("reset.button")}
           </button>
         </form>
       )}

@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom";
 import { Phone, Mail } from "lucide-react";
+import { useLanguage } from "../i18n/useLanguage";
 
 function Footer() {
+  const { t } = useLanguage();
+
   return (
     <footer className="bg-ink text-gray-400">
       <div className="max-w-7xl mx-auto px-6 py-16 grid gap-12 md:grid-cols-4">
@@ -17,26 +20,25 @@ function Footer() {
           </div>
 
           <p className="max-w-sm leading-relaxed">
-            Elegant rooms, warm hospitality and thoughtful service —
-            everything you need for an unforgettable stay.
+            {t("footer.about")}
           </p>
         </div>
 
         <div>
           <h4 className="mb-5 text-sm font-semibold uppercase tracking-widest text-white">
-            Explore
+            {t("footer.explore")}
           </h4>
           <ul className="space-y-3">
-            <li><Link to="/" className="hover:text-gold-400">Home</Link></li>
-            <li><Link to="/rooms" className="hover:text-gold-400">Rooms & Suites</Link></li>
-            <li><Link to="/my-bookings" className="hover:text-gold-400">My Bookings</Link></li>
-            <li><Link to="/login" className="hover:text-gold-400">Login</Link></li>
+            <li><Link to="/" className="hover:text-gold-400">{t("nav.home")}</Link></li>
+            <li><Link to="/rooms" className="hover:text-gold-400">{t("footer.roomsSuites")}</Link></li>
+            <li><Link to="/my-bookings" className="hover:text-gold-400">{t("nav.myBookings")}</Link></li>
+            <li><Link to="/login" className="hover:text-gold-400">{t("nav.login")}</Link></li>
           </ul>
         </div>
 
         <div>
           <h4 className="mb-5 text-sm font-semibold uppercase tracking-widest text-white">
-            Contact
+            {t("footer.contact")}
           </h4>
           <ul className="space-y-3">
             <li>
@@ -64,7 +66,7 @@ function Footer() {
 
       <div className="border-t border-white/10">
         <p className="max-w-7xl mx-auto px-6 py-6 text-sm">
-          © {new Date().getFullYear()} Grand Hotel. All rights reserved.
+          © {new Date().getFullYear()} Grand Hotel. {t("footer.rights")}
         </p>
       </div>
     </footer>

@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Star, X } from "lucide-react";
+import { useLanguage } from "../i18n/useLanguage";
 
-const LABELS = ["", "Poor", "Fair", "Good", "Very good", "Excellent"];
 const MAX_COMMENT = 1000;
 
 function ReviewModal({ booking, onClose, onSaved }) {
+  const { t } = useLanguage();
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [comment, setComment] = useState("");
@@ -17,7 +18,7 @@ function ReviewModal({ booking, onClose, onSaved }) {
     e.preventDefault();
 
     if (!rating) {
-      setError("Please choose a star rating.");
+      setError(t("reviewForm.chooseRating"));
       return;
     }
 
@@ -37,7 +38,7 @@ function ReviewModal({ booking, onClose, onSaved }) {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Could not save your review.");
+        throw new Error(data.message || t("reviewForm.saveError"));
       }
 
       onSaved(rating);
@@ -60,9 +61,9 @@ function ReviewModal({ booking, onClose, onSaved }) {
       >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-semibold text-ink">How was your stay?</h2>
+            <h2 className="text-2xl font-semibold text-ink">{t("reviewForm.title")}</h2>
             <p className="mt-1 text-sm text-gray-500">
-              {booking.room_name} · Booking #{booking.id}
+              {booking.room_name} · {t("common.bookingNumber", { id: booking.id })}
             </p>
           </div>
 
@@ -70,7 +71,7 @@ function ReviewModal({ booking, onClose, onSaved }) {
             type="button"
             onClick={onClose}
             className="rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
-            aria-label="Close"
+            aria-label={t("common.close")}
           >
             <X size={20} />
           </button>
@@ -88,7 +89,7 @@ function ReviewModal({ booking, onClose, onSaved }) {
               }}
               onMouseEnter={() => setHover(n)}
               className="p-1 transition hover:scale-110"
-              aria-label={`${n} star${n > 1 ? "s" : ""}`}
+              aria-label={t("reviewForm.starButton", { count: n })}
             >
               <Star
                 size={34}
@@ -99,18 +100,21 @@ function ReviewModal({ booking, onClose, onSaved }) {
             </button>
           ))}
 
-          <span className="ml-3 text-sm font-medium text-gray-600">{LABELS[shown]}</span>
+          <span className="ml-3 text-sm font-medium text-gray-600">
+            {shown ? t(`reviewForm.label.${shown}`) : ""}
+          </span>
         </div>
 
         <label className="mt-6 block text-sm font-medium text-gray-700">
-          Your review <span className="font-normal text-gray-400">(optional)</span>
+          {t("reviewForm.yourReview")}{" "}
+          <span className="font-normal text-gray-400">{t("reviewForm.optional")}</span>
         </label>
 
         <textarea
           value={comment}
           onChange={(e) => setComment(e.target.value.slice(0, MAX_COMMENT))}
           rows={4}
-          placeholder="Tell other guests about the room, cleanliness, staff..."
+          placeholder={t("reviewForm.placeholder")}
           className="field mt-2"
         />
 
@@ -125,7 +129,7 @@ function ReviewModal({ booking, onClose, onSaved }) {
         )}
 
         <button type="submit" disabled={saving} className="btn-gold mt-5 w-full py-3.5">
-          {saving ? "Sending..." : "Submit Review"}
+          {saving ? t("reviewForm.sending") : t("reviewForm.submit")}
         </button>
       </form>
     </div>

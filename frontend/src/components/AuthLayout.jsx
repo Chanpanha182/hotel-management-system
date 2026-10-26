@@ -1,6 +1,10 @@
 import { Link } from "react-router-dom";
+import LanguageSwitch from "./LanguageSwitch";
+import { useLanguage } from "../i18n/useLanguage";
 
 function AuthLayout({ title, subtitle, image, children }) {
+  const { t } = useLanguage();
+
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
 
@@ -21,9 +25,9 @@ function AuthLayout({ title, subtitle, image, children }) {
 
           <div>
             <p className="font-display text-4xl font-semibold leading-tight">
-              “A place where every stay
+              {t("auth.quote1")}
               <br />
-              feels like coming home.”
+              {t("auth.quote2")}
             </p>
             <p className="mt-4 text-gray-300">Grand Hotel</p>
           </div>
@@ -31,7 +35,9 @@ function AuthLayout({ title, subtitle, image, children }) {
       </div>
 
       {/* Form side */}
-      <div className="flex items-center justify-center bg-cream px-6 py-12">
+      <div className="relative flex items-center justify-center bg-cream px-6 py-12">
+        <LanguageSwitch className="absolute right-6 top-6" />
+
         <div className="w-full max-w-md">
 
           <Link to="/" className="mb-10 flex items-center gap-3 lg:hidden">

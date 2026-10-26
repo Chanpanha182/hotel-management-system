@@ -11,6 +11,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import ReviewModal from "../components/ReviewModal";
 import Stars from "../components/Stars";
+import { useLanguage } from "../i18n/useLanguage";
 
 function MyBookings() {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ function MyBookings() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [reviewBooking, setReviewBooking] = useState(null);
+  const { t, formatDate: formatLocalDate } = useLanguage();
 
   // ========================================
   // FETCH BOOKINGS + PAYMENTS
@@ -143,7 +145,7 @@ function MyBookings() {
   // ========================================
 
   const formatDate = (date) => {
-    return new Date(date).toLocaleDateString("en-US", {
+    return formatLocalDate(date, {
       year: "numeric",
       month: "short",
       day: "numeric",
@@ -206,19 +208,19 @@ function MyBookings() {
   const getPaymentStatusText = (status) => {
     switch (status) {
       case "pending":
-        return "🟡 Payment Pending";
+        return t("payStatus.pending");
 
       case "paid":
-        return "🟢 Paid";
+        return t("payStatus.paid");
 
       case "failed":
-        return "🔴 Payment Failed";
+        return t("payStatus.failed");
 
       case "refunded":
-        return "🔵 Refunded";
+        return t("payStatus.refunded");
 
       default:
-        return "Payment";
+        return t("myBookings.paymentInfo");
     }
   };
 
@@ -228,7 +230,7 @@ function MyBookings() {
 
   const handleCancelBooking = async (bookingId) => {
     const confirmed = window.confirm(
-      "Are you sure you want to cancel this booking?"
+      t("myBookings.cancelConfirm")
     );
 
     if (!confirmed) {
@@ -252,7 +254,7 @@ function MyBookings() {
 
       if (!response.ok) {
         throw new Error(
-          data.message || "Failed to cancel booking."
+          data.message || t("myBookings.cancelFailed")
         );
       }
 
@@ -268,7 +270,7 @@ function MyBookings() {
         )
       );
 
-      alert("Booking cancelled successfully!");
+      alert(t("myBookings.cancelled"));
 
     } catch (error) {
       console.error(error);
@@ -297,7 +299,7 @@ function MyBookings() {
           }
           className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg transition"
         >
-          💳 Pay Now
+          {t("myBookings.payNow")}
         </button>
       );
     }
@@ -319,7 +321,7 @@ if (payment.payment_status === "pending") {
         onClick={() => navigate(`/payment/${booking.id}`)}
         className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg transition"
       >
-        💳 Continue Payment
+        {t("myBookings.continuePayment")}
       </button>
 
     </div>
@@ -350,7 +352,7 @@ if (payment.payment_status === "pending") {
           }
           className="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-lg transition"
         >
-          🔴 Payment Failed — Try Again
+          {t("myBookings.payFailedRetry")}
         </button>
       );
     }
@@ -395,15 +397,15 @@ if (payment.payment_status === "pending") {
             className="inline-flex items-center gap-2 text-gray-600 hover:text-blue-600 mb-5"
           >
             <ArrowLeft size={18} />
-            Browse Rooms
+            {t("common.browseRooms")}
           </Link>
 
           <h1 className="text-3xl font-bold text-gray-900">
-            My Bookings
+            {t("myBookings.title")}
           </h1>
 
           <p className="text-gray-500 mt-2">
-            View and manage your hotel reservations.
+            {t("myBookings.subtitle")}
           </p>
 
         </div>
@@ -415,7 +417,7 @@ if (payment.payment_status === "pending") {
         {loading && (
           <div className="bg-white rounded-2xl shadow-sm p-10 text-center">
             <p className="text-gray-500">
-              Loading your bookings...
+              {t("myBookings.loading")}
             </p>
           </div>
         )}
@@ -445,18 +447,18 @@ if (payment.payment_status === "pending") {
               />
 
               <h2 className="text-xl font-bold text-gray-900">
-                No bookings yet
+                {t("myBookings.empty")}
               </h2>
 
               <p className="text-gray-500 mt-2 mb-6">
-                You haven't made any reservations yet.
+                {t("myBookings.emptyText")}
               </p>
 
               <Link
                 to="/rooms"
                 className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700"
               >
-                Browse Rooms
+                {t("common.browseRooms")}
               </Link>
 
             </div>
@@ -507,7 +509,7 @@ if (payment.payment_status === "pending") {
                         <div>
 
                           <p className="text-blue-600 font-medium">
-                            {booking.room_type}
+                            {t(`roomType.${booking.room_type}`)}
                           </p>
 
                           <h2 className="text-2xl font-bold text-gray-900">
@@ -515,7 +517,7 @@ if (payment.payment_status === "pending") {
                           </h2>
 
                           <p className="text-gray-500 mt-1">
-                            Room {booking.room_number}
+                            {t("common.roomNumber", { number: booking.room_number })}
                           </p>
 
                         </div>
@@ -527,10 +529,7 @@ if (payment.payment_status === "pending") {
                             booking.booking_status
                           )}`}
                         >
-                          {booking.booking_status.replace(
-                            "_",
-                            " "
-                          )}
+                          {t(`status.${booking.booking_status}`)}
                         </span>
 
                       </div>
@@ -553,7 +552,7 @@ if (payment.payment_status === "pending") {
                           <div>
 
                             <p className="text-xs text-gray-500">
-                              Check-in
+                              {t("common.checkIn")}
                             </p>
 
                             <p className="font-medium">
@@ -578,7 +577,7 @@ if (payment.payment_status === "pending") {
                           <div>
 
                             <p className="text-xs text-gray-500">
-                              Check-out
+                              {t("common.checkOut")}
                             </p>
 
                             <p className="font-medium">
@@ -603,7 +602,7 @@ if (payment.payment_status === "pending") {
                           <div>
 
                             <p className="text-xs text-gray-500">
-                              Guests
+                              {t("common.guests")}
                             </p>
 
                             <p className="font-medium">
@@ -625,7 +624,7 @@ if (payment.payment_status === "pending") {
                         <div>
 
                           <p className="text-sm text-gray-500">
-                            Total Amount
+                            {t("common.totalAmount")}
                           </p>
 
                           <p className="text-2xl font-bold text-blue-600">
@@ -646,7 +645,7 @@ if (payment.payment_status === "pending") {
                         </div>
 
                         <div className="text-sm text-gray-500">
-                          Booking #{booking.id}
+                          {t("common.bookingNumber", { id: booking.id })}
                         </div>
 
                       </div>
@@ -658,7 +657,7 @@ if (payment.payment_status === "pending") {
                       {Number(booking.can_review) === 1 && (
                         <div className="mt-5 flex flex-col gap-3 rounded-xl bg-gold-50 p-4 sm:flex-row sm:items-center sm:justify-between">
                           <p className="text-sm text-gray-700">
-                            How was your stay? Your review helps other guests.
+                            {t("myBookings.reviewPrompt")}
                           </p>
 
                           <button
@@ -666,16 +665,16 @@ if (payment.payment_status === "pending") {
                             className="btn-gold shrink-0 px-5 py-2.5 text-sm"
                           >
                             <Star size={16} />
-                            Write a Review
+                            {t("myBookings.writeReview")}
                           </button>
                         </div>
                       )}
 
                       {booking.review_rating && (
                         <p className="mt-5 flex items-center gap-2 text-sm text-gray-600">
-                          Your review:
+                          {t("myBookings.yourReview")}
                           <Stars value={Number(booking.review_rating)} size={15} />
-                          — thank you!
+                          {t("myBookings.thanks")}
                         </p>
                       )}
 
@@ -696,7 +695,7 @@ if (payment.payment_status === "pending") {
                               className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold px-5 py-2.5 rounded-lg transition"
                             >
                               <XCircle size={18} />
-                              Cancel Booking
+                              {t("myBookings.cancel")}
                             </button>
 
                           </div>
@@ -714,14 +713,14 @@ if (payment.payment_status === "pending") {
                             <div>
 
                               <p className="text-sm font-semibold text-gray-700">
-                                Payment Information
+                                {t("myBookings.paymentInfo")}
                               </p>
 
                               <p className="text-sm text-gray-600 mt-1">
-                                Method:{" "}
+                                {t("myBookings.method")}{" "}
                                 {payments[booking.id]
                                   .payment_method ||
-                                  "Not specified"}
+                                  t("myBookings.notSpecified")}
                               </p>
 
                             </div>
@@ -732,8 +731,7 @@ if (payment.payment_status === "pending") {
                                   .payment_status
                               )}`}
                             >
-                              {payments[booking.id]
-                                .payment_status}
+                              {t(`payStatusShort.${payments[booking.id].payment_status}`)}
                             </span>
 
                           </div>
@@ -749,7 +747,7 @@ if (payment.payment_status === "pending") {
                         <div className="mt-5 bg-gray-50 rounded-lg p-4">
 
                           <p className="text-sm font-semibold text-gray-700">
-                            Special Request
+                            {t("common.specialRequest")}
                           </p>
 
                           <p className="text-sm text-gray-600 mt-1">

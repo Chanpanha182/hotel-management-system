@@ -1,11 +1,14 @@
 import { Star } from "lucide-react";
+import { useLanguage } from "../i18n/useLanguage";
 
 // Read-only stars. value can be a decimal (e.g. 4.5 shows a half-filled star).
 function Stars({ value = 0, size = 16, className = "" }) {
+  const { t } = useLanguage();
+
   return (
     <span
       className={`inline-flex items-center gap-0.5 ${className}`}
-      aria-label={`${Number(value).toFixed(1)} out of 5 stars`}
+      aria-label={t("reviews.stars", { value: Number(value).toFixed(1) })}
     >
       {[1, 2, 3, 4, 5].map((n) => {
         const fill = Math.max(0, Math.min(1, value - (n - 1)));

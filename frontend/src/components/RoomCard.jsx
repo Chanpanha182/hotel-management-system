@@ -1,11 +1,14 @@
 import { Link } from "react-router-dom";
 import { Users, BedDouble, Maximize, ArrowRight } from "lucide-react";
 import Stars from "./Stars";
+import { useLanguage } from "../i18n/useLanguage";
 
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=1000&q=80";
 
 function RoomCard({ room, search = "" }) {
+  const { t } = useLanguage();
+
   return (
     <Link
       to={`/rooms/${room.id}${search}`}
@@ -21,14 +24,14 @@ function RoomCard({ room, search = "" }) {
         />
 
         <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-gold-700 backdrop-blur">
-          {room.room_type}
+          {t(`roomType.${room.room_type}`)}
         </span>
 
         <div className="absolute bottom-4 right-4 rounded-2xl bg-ink/85 px-4 py-2 text-white backdrop-blur">
           <span className="font-display text-xl font-semibold">
             ${Number(room.price).toFixed(0)}
           </span>
-          <span className="text-xs text-gray-300"> / night</span>
+          <span className="text-xs text-gray-300"> {t("common.perNight")}</span>
         </div>
       </div>
 
@@ -57,7 +60,7 @@ function RoomCard({ room, search = "" }) {
         <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-sm text-gray-600">
           <span className="flex items-center gap-1.5">
             <Users size={16} className="text-gold-500" />
-            {room.capacity} Guests
+            {t("common.guestsCount", { count: room.capacity })}
           </span>
 
           {room.bed_type && (
@@ -77,7 +80,7 @@ function RoomCard({ room, search = "" }) {
 
         <div className="mt-auto pt-6">
           <span className="flex items-center gap-2 text-sm font-semibold text-gold-600 transition group-hover:gap-3">
-            View Details
+            {t("common.viewDetails")}
             <ArrowRight size={16} />
           </span>
         </div>

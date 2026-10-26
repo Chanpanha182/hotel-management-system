@@ -8,22 +8,28 @@ import {
   Home,
   ClipboardList,
 } from "lucide-react";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+import { useLanguage } from "../i18n/useLanguage";
 
 function BookingConfirmation() {
   const location = useLocation();
+  const { t, formatDate } = useLanguage();
 
   const booking = location.state?.booking;
 
   if (!booking) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-6">
+      <div className="min-h-screen">
+      <Navbar />
+      <div className="flex items-center justify-center px-6 py-24">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-3">
-            Booking Information Not Found
+            {t("confirm.notFoundTitle")}
           </h1>
 
           <p className="text-gray-500 mb-6">
-            Please check your bookings to see your reservation.
+            {t("confirm.notFoundText")}
           </p>
 
           <Link
@@ -31,15 +37,18 @@ function BookingConfirmation() {
             className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold"
           >
             <ClipboardList size={18} />
-            My Bookings
+            {t("nav.myBookings")}
           </Link>
         </div>
+      </div>
+      <Footer />
       </div>
     );
   }
 
   return (
     <div className="min-h-screen">
+      <Navbar />
       <main className="max-w-4xl mx-auto px-6 py-12">
 
         {/* Success Header */}
@@ -50,15 +59,15 @@ function BookingConfirmation() {
           />
 
           <h1 className="text-3xl font-bold text-gray-900">
-            Booking Confirmed!
+            {t("confirm.title")}
           </h1>
 
           <p className="text-gray-500 mt-2">
-            Your booking has been created successfully.
+            {t("confirm.text")}
           </p>
 
           <p className="text-gray-600 mt-3">
-            Booking ID:
+            {t("confirm.bookingId")}
             <span className="font-bold text-blue-600 ml-2">
               #{booking.booking_id}
             </span>
@@ -79,7 +88,7 @@ function BookingConfirmation() {
                 </h2>
 
                 <p className="text-blue-100">
-                  Room {booking.room_number}
+                  {t("common.roomNumber", { number: booking.room_number })}
                 </p>
               </div>
             </div>
@@ -96,11 +105,11 @@ function BookingConfirmation() {
 
                 <div>
                   <p className="text-sm text-gray-500">
-                    Check-in
+                    {t("common.checkIn")}
                   </p>
 
                   <p className="font-semibold text-gray-900">
-                    {booking.check_in}
+                    {formatDate(booking.check_in)}
                   </p>
                 </div>
               </div>
@@ -111,11 +120,11 @@ function BookingConfirmation() {
 
                 <div>
                   <p className="text-sm text-gray-500">
-                    Check-out
+                    {t("common.checkOut")}
                   </p>
 
                   <p className="font-semibold text-gray-900">
-                    {booking.check_out}
+                    {formatDate(booking.check_out)}
                   </p>
                 </div>
               </div>
@@ -126,12 +135,13 @@ function BookingConfirmation() {
 
                 <div>
                   <p className="text-sm text-gray-500">
-                    Guests
+                    {t("common.guests")}
                   </p>
 
                   <p className="font-semibold text-gray-900">
-                    {booking.guests}{" "}
-                    {booking.guests === 1 ? "Guest" : "Guests"}
+                    {booking.guests === 1
+                      ? t("home.guestOption1")
+                      : t("home.guestOptionN", { count: booking.guests })}
                   </p>
                 </div>
               </div>
@@ -142,11 +152,11 @@ function BookingConfirmation() {
 
                 <div>
                   <p className="text-sm text-gray-500">
-                    Booking Status
+                    {t("confirm.bookingStatus")}
                   </p>
 
                   <p className="font-semibold text-yellow-600 capitalize">
-                    {booking.booking_status}
+                    {t(`status.${booking.booking_status}`)}
                   </p>
                 </div>
               </div>
@@ -157,7 +167,7 @@ function BookingConfirmation() {
             {booking.special_request && (
               <div className="mt-6">
                 <h3 className="font-semibold text-gray-900 mb-2">
-                  Special Request
+                  {t("common.specialRequest")}
                 </h3>
 
                 <p className="bg-gray-50 rounded-xl p-4 text-gray-600">
@@ -174,7 +184,7 @@ function BookingConfirmation() {
                   <CreditCard className="text-blue-600" />
 
                   <span className="text-lg font-semibold">
-                    Total Amount
+                    {t("common.totalAmount")}
                   </span>
                 </div>
 
@@ -193,7 +203,7 @@ function BookingConfirmation() {
                 className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition"
               >
                 <CreditCard size={18} />
-                Go to Payment
+                {t("confirm.goToPayment")}
               </Link>
 
               <Link
@@ -201,7 +211,7 @@ function BookingConfirmation() {
                 className="flex items-center justify-center gap-2 border border-gray-300 hover:bg-gray-50 text-gray-700 py-3 rounded-lg font-semibold transition"
               >
                 <ClipboardList size={18} />
-                My Bookings
+                {t("nav.myBookings")}
               </Link>
 
             </div>
@@ -211,12 +221,13 @@ function BookingConfirmation() {
               className="flex items-center justify-center gap-2 mt-4 text-gray-500 hover:text-blue-600 transition"
             >
               <Home size={18} />
-              Back to Home
+              {t("confirm.backHome")}
             </Link>
 
           </div>
         </div>
       </main>
+      <Footer />
     </div>
   );
 }

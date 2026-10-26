@@ -2,8 +2,10 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { MailCheck } from "lucide-react";
 import AuthLayout from "../components/AuthLayout";
+import { useLanguage } from "../i18n/useLanguage";
 
 function ForgotPassword() {
+  const { t } = useLanguage();
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
@@ -35,7 +37,7 @@ function ForgotPassword() {
 
       setSent(true);
     } catch (error) {
-      setError(error.message || "Something went wrong. Please try again.");
+      setError(error.message || t("forgot.error"));
     } finally {
       setLoading(false);
     }
@@ -43,8 +45,8 @@ function ForgotPassword() {
 
   return (
     <AuthLayout
-      title="Forgot password?"
-      subtitle="Enter your email and we will send you a link to reset it."
+      title={t("forgot.title")}
+      subtitle={t("forgot.subtitle")}
       image="https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=1400&q=80"
     >
       {sent ? (
@@ -54,16 +56,15 @@ function ForgotPassword() {
           </span>
 
           <h2 className="mt-4 text-2xl font-semibold text-ink">
-            Check your email
+            {t("forgot.checkEmail")}
           </h2>
 
           <p className="mt-2 text-gray-600">
-            If an account exists for <strong>{email}</strong>, we have sent a
-            reset link. It expires in 30 minutes.
+            {t("forgot.sent", { email })}
           </p>
 
           <p className="mt-4 text-sm text-gray-500">
-            Can't find it? Look in your Spam or Promotions folder.
+            {t("forgot.spam")}
           </p>
         </div>
       ) : (
@@ -75,14 +76,14 @@ function ForgotPassword() {
           )}
 
           <label className="mb-2 block text-sm font-medium text-gray-700">
-            Email
+            {t("common.email")}
           </label>
 
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter your email"
+            placeholder={t("login.emailPlaceholder")}
             required
             className="field mb-6"
           />
@@ -92,18 +93,18 @@ function ForgotPassword() {
             disabled={loading}
             className="btn-gold w-full py-3.5"
           >
-            {loading ? "Sending..." : "Send Reset Link"}
+            {loading ? t("forgot.sending") : t("forgot.button")}
           </button>
         </form>
       )}
 
       <p className="text-center text-gray-600 mt-6">
-        Remembered it?{" "}
+        {t("forgot.remembered")}{" "}
         <Link
           to="/login"
           className="font-semibold text-gold-600 hover:underline"
         >
-          Back to Login
+          {t("forgot.backToLogin")}
         </Link>
       </p>
     </AuthLayout>

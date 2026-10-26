@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, Expand, X } from "lucide-react";
+import { useLanguage } from "../i18n/useLanguage";
 
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=1400&q=80";
 
 function RoomGallery({ photos, alt }) {
+  const { t } = useLanguage();
   const list = photos.length ? photos : [FALLBACK_IMAGE];
 
   const [active, setActive] = useState(0);
@@ -46,7 +48,7 @@ function RoomGallery({ photos, alt }) {
           type="button"
           onClick={() => setOpen(true)}
           className="block w-full"
-          aria-label="View photo full screen"
+          aria-label={t("gallery.fullScreen")}
         >
           <img
             src={list[current]}
@@ -67,7 +69,7 @@ function RoomGallery({ photos, alt }) {
               type="button"
               onClick={() => go(-1)}
               className="absolute left-4 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-ink shadow transition hover:bg-white"
-              aria-label="Previous photo"
+              aria-label={t("gallery.previous")}
             >
               <ChevronLeft size={20} />
             </button>
@@ -76,7 +78,7 @@ function RoomGallery({ photos, alt }) {
               type="button"
               onClick={() => go(1)}
               className="absolute right-4 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-ink shadow transition hover:bg-white"
-              aria-label="Next photo"
+              aria-label={t("gallery.next")}
             >
               <ChevronRight size={20} />
             </button>
@@ -97,7 +99,7 @@ function RoomGallery({ photos, alt }) {
                   ? "ring-gold-500"
                   : "ring-transparent opacity-70 hover:opacity-100"
               }`}
-              aria-label={`Show photo ${index + 1}`}
+              aria-label={t("gallery.show", { number: index + 1 })}
             >
               <img
                 src={src}
@@ -120,7 +122,7 @@ function RoomGallery({ photos, alt }) {
             type="button"
             onClick={() => setOpen(false)}
             className="absolute right-5 top-5 grid h-11 w-11 place-items-center rounded-full bg-white/10 text-white hover:bg-white/20"
-            aria-label="Close"
+            aria-label={t("common.close")}
           >
             <X size={24} />
           </button>
@@ -142,7 +144,7 @@ function RoomGallery({ photos, alt }) {
                   go(-1);
                 }}
                 className="absolute left-4 top-1/2 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full bg-white/10 text-white hover:bg-white/20"
-                aria-label="Previous photo"
+                aria-label={t("gallery.previous")}
               >
                 <ChevronLeft size={26} />
               </button>
@@ -154,7 +156,7 @@ function RoomGallery({ photos, alt }) {
                   go(1);
                 }}
                 className="absolute right-4 top-1/2 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full bg-white/10 text-white hover:bg-white/20"
-                aria-label="Next photo"
+                aria-label={t("gallery.next")}
               >
                 <ChevronRight size={26} />
               </button>

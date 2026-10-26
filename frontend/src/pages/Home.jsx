@@ -14,20 +14,22 @@ import {
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import RoomCard from "../components/RoomCard";
+import { useLanguage } from "../i18n/useLanguage";
 
 const today = new Date().toISOString().split("T")[0];
 
 const amenities = [
-  { icon: Wifi, title: "Free Wi-Fi", text: "Fast, reliable internet in every room and public area." },
-  { icon: UtensilsCrossed, title: "Restaurant & Bar", text: "Local and international dishes from our chefs." },
-  { icon: Waves, title: "Swimming Pool", text: "Relax by the pool with a cool drink in hand." },
-  { icon: Sparkles, title: "Spa & Wellness", text: "Massages and treatments to help you unwind." },
-  { icon: Car, title: "Airport Transfer", text: "Comfortable pickup and drop-off on request." },
-  { icon: ConciergeBell, title: "24/7 Reception", text: "Our team is here for you, day and night." },
+  { icon: Wifi, key: "wifi" },
+  { icon: UtensilsCrossed, key: "restaurant" },
+  { icon: Waves, key: "pool" },
+  { icon: Sparkles, key: "spa" },
+  { icon: Car, key: "transfer" },
+  { icon: ConciergeBell, key: "reception" },
 ];
 
 function Home() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -77,28 +79,27 @@ function Home() {
 
         <div className="relative z-10 mx-auto w-full max-w-7xl px-6 pt-24 pb-40 text-center text-white">
           <p className="mb-6 text-xs font-semibold uppercase tracking-[0.4em] text-gold-300">
-            Welcome to Grand Hotel
+            {t("home.welcome")}
           </p>
 
           <h1 className="mx-auto max-w-4xl text-5xl font-semibold leading-tight md:text-7xl">
-            Where Luxury Meets
-            <span className="block italic text-gold-300">Comfort</span>
+            {t("home.heroTitle1")}
+            <span className="block italic text-gold-300">{t("home.heroTitle2")}</span>
           </h1>
 
           <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-200 md:text-xl">
-            Discover an unforgettable stay with elegant rooms,
-            exceptional service and world-class facilities.
+            {t("home.heroText")}
           </p>
 
           <div className="mt-10 flex flex-wrap justify-center gap-4">
             <Link to="/rooms" className="btn-gold px-8 py-4">
-              Explore Rooms
+              {t("home.exploreRooms")}
             </Link>
             <a
               href="#amenities"
               className="inline-flex items-center rounded-full border border-white/60 px-8 py-4 font-semibold text-white transition hover:bg-white hover:text-ink"
             >
-              Our Amenities
+              {t("home.ourAmenities")}
             </a>
           </div>
         </div>
@@ -113,7 +114,7 @@ function Home() {
           <label className="block">
             <span className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
               <CalendarDays size={14} className="text-gold-600" />
-              Check-in
+              {t("common.checkIn")}
             </span>
             <input
               type="date"
@@ -127,7 +128,7 @@ function Home() {
           <label className="block">
             <span className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
               <CalendarDays size={14} className="text-gold-600" />
-              Check-out
+              {t("common.checkOut")}
             </span>
             <input
               type="date"
@@ -141,24 +142,24 @@ function Home() {
           <label className="block">
             <span className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
               <Users size={14} className="text-gold-600" />
-              Guests
+              {t("common.guests")}
             </span>
             <select
               value={search.guests}
               onChange={(e) => setSearch({ ...search, guests: e.target.value })}
               className="field"
             >
-              <option value="1">1 Guest</option>
-              <option value="2">2 Guests</option>
-              <option value="3">3 Guests</option>
-              <option value="4">4+ Guests</option>
+              <option value="1">{t("home.guestOption1")}</option>
+              <option value="2">{t("home.guestOptionN", { count: 2 })}</option>
+              <option value="3">{t("home.guestOptionN", { count: 3 })}</option>
+              <option value="4">{t("home.guestOption4")}</option>
             </select>
           </label>
 
           <div className="flex items-end">
             <button type="submit" className="btn-dark w-full py-3.5 md:w-auto md:px-8">
               <Search size={18} />
-              Search
+              {t("home.search")}
             </button>
           </div>
         </form>
@@ -175,35 +176,32 @@ function Home() {
             />
             <div className="absolute -bottom-8 -right-4 hidden rounded-3xl bg-ink p-6 text-white shadow-xl md:block">
               <ConciergeBell size={26} className="text-gold-400" />
-              <p className="mt-3 font-display text-2xl font-semibold">Book Direct</p>
-              <p className="text-sm text-gray-400">Instant confirmation online</p>
+              <p className="mt-3 font-display text-2xl font-semibold">{t("home.bookDirect")}</p>
+              <p className="text-sm text-gray-400">{t("home.instantConfirmation")}</p>
             </div>
           </div>
 
           <div>
-            <p className="eyebrow">About Us</p>
+            <p className="eyebrow">{t("home.aboutEyebrow")}</p>
             <h2 className="mt-4 text-4xl font-semibold leading-tight text-ink md:text-5xl">
-              A peaceful place to rest, right in the heart of the city
+              {t("home.aboutTitle")}
             </h2>
             <p className="mt-6 leading-relaxed text-gray-600">
-              At Grand Hotel, every detail is designed for your comfort —
-              from soft beds and modern rooms to friendly staff who are
-              always ready to help. Whether you travel for business or
-              holiday, you will feel at home with us.
+              {t("home.aboutText")}
             </p>
 
             <div className="mt-10 grid grid-cols-3 gap-6 border-t border-gray-200 pt-8">
               <div>
                 <p className="font-display text-4xl font-semibold text-gold-600">{rooms.length || "—"}</p>
-                <p className="mt-1 text-sm text-gray-500">Rooms & Suites</p>
+                <p className="mt-1 text-sm text-gray-500">{t("home.statRooms")}</p>
               </div>
               <div>
                 <p className="font-display text-4xl font-semibold text-gold-600">24/7</p>
-                <p className="mt-1 text-sm text-gray-500">Guest Service</p>
+                <p className="mt-1 text-sm text-gray-500">{t("home.statService")}</p>
               </div>
               <div>
                 <p className="font-display text-4xl font-semibold text-gold-600">100%</p>
-                <p className="mt-1 text-sm text-gray-500">Secure Booking</p>
+                <p className="mt-1 text-sm text-gray-500">{t("home.statSecure")}</p>
               </div>
             </div>
           </div>
@@ -215,13 +213,13 @@ function Home() {
         <div className="mx-auto max-w-7xl">
           <div className="mb-14 flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
             <div>
-              <p className="eyebrow">Stay With Us</p>
+              <p className="eyebrow">{t("home.featuredEyebrow")}</p>
               <h2 className="mt-4 text-4xl font-semibold text-ink md:text-5xl">
-                Featured Rooms
+                {t("home.featuredTitle")}
               </h2>
             </div>
             <Link to="/rooms" className="btn-dark">
-              View All Rooms
+              {t("home.viewAllRooms")}
             </Link>
           </div>
 
@@ -245,23 +243,23 @@ function Home() {
       <section id="amenities" className="px-6 py-24">
         <div className="mx-auto max-w-7xl">
           <div className="mx-auto mb-14 max-w-2xl text-center">
-            <p className="eyebrow">Hotel Facilities</p>
+            <p className="eyebrow">{t("home.facilitiesEyebrow")}</p>
             <h2 className="mt-4 text-4xl font-semibold text-ink md:text-5xl">
-              Everything for a perfect stay
+              {t("home.facilitiesTitle")}
             </h2>
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {amenities.map(({ icon: Icon, title, text }) => (
+            {amenities.map(({ icon: Icon, key }) => (
               <div
-                key={title}
+                key={key}
                 className="rounded-3xl bg-white p-8 ring-1 ring-black/5 transition hover:shadow-lg"
               >
                 <span className="grid h-14 w-14 place-items-center rounded-2xl bg-gold-50 text-gold-600">
                   <Icon size={26} />
                 </span>
-                <h3 className="mt-6 text-xl font-semibold text-ink">{title}</h3>
-                <p className="mt-2 text-gray-500">{text}</p>
+                <h3 className="mt-6 text-xl font-semibold text-ink">{t(`home.amenity.${key}`)}</h3>
+                <p className="mt-2 text-gray-500">{t(`home.amenity.${key}Text`)}</p>
               </div>
             ))}
           </div>
@@ -280,13 +278,13 @@ function Home() {
           <div className="absolute inset-0 bg-ink/70"></div>
           <div className="relative">
             <h2 className="text-4xl font-semibold md:text-5xl">
-              Ready for your next stay?
+              {t("home.ctaTitle")}
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-gray-200">
-              Book directly with us and pay safely online with ABA PayWay.
+              {t("home.ctaText")}
             </p>
             <Link to="/rooms" className="btn-gold mt-8 px-8 py-4">
-              Book Your Room
+              {t("home.ctaButton")}
             </Link>
           </div>
         </div>
