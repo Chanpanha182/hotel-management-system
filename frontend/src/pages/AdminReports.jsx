@@ -31,7 +31,7 @@ function ReportCard({ title, value, icon: Icon, color }) {
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
           <p className="text-sm text-gray-500">{title}</p>
-          <p className="mt-2 break-words text-2xl font-bold text-gray-900">
+          <p className="mt-2 wrap-break-word text-2xl font-bold text-gray-900">
             {value}
           </p>
         </div>
