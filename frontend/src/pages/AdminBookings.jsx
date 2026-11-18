@@ -760,7 +760,7 @@ function AdminBookings() {
 
                             <td className="px-4 py-4 lg:px-6">
                               <p className="text-sm font-semibold text-gray-900">
-                                {booking.room_name || "Hotel Room"}
+                                {booking.room_name || "Guesthouse Room"}
                               </p>
                               <p className="mt-0.5 text-xs text-gray-500">
                                 Room {booking.room_number ?? "—"}
@@ -863,7 +863,7 @@ function AdminBookings() {
                               size={15}
                               className="shrink-0 text-gray-400"
                             />
-                            {booking.room_name || "Hotel Room"}
+                            {booking.room_name || "Guesthouse Room"}
                           </p>
                           <p className="mt-0.5 pl-[23px] text-xs text-gray-500">
                             Room {booking.room_number ?? "—"}

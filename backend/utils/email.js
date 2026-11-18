@@ -3,7 +3,7 @@ const db = require("../config/db");
 // Emails go through Brevo's HTTP API because Render's free plan
 // blocks SMTP ports, so Gmail/nodemailer cannot be used directly.
 
-const HOTEL_NAME = "Grand Hotel";
+const HOTEL_NAME = "Heng LyLy Guesthouse";
 
 async function sendEmail({ to, toName, subject, html }) {
     const apiKey = process.env.BREVO_API_KEY;

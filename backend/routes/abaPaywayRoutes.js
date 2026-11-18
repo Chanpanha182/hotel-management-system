@@ -564,7 +564,7 @@ router.post("/:tranId/check", authMiddleware, async (req, res) => {
         sendTelegramMessage(
           `💳 ABA PAYMENT SUCCESSFUL
 
-🏨 Hotel Management System
+🏨 Heng LyLy Guesthouse
 
 Booking ID: #${payment.booking_id}
 Payment ID: #${payment.id}

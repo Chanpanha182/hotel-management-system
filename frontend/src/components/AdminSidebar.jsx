@@ -126,7 +126,7 @@ function AdminSidebar() {
 
               <div>
                 <h1 className="font-bold text-lg">
-                  Hotel Admin
+                  Heng LyLy Admin
                 </h1>
 
                 <p className="text-xs text-gray-400">

@@ -429,7 +429,7 @@ function AdminDashboard() {
           <section className="mb-9">
             <div className="mb-4">
               <h2 className="text-lg font-bold text-gray-900">
-                Hotel Overview
+                Guesthouse Overview
               </h2>
               <p className="mt-1 text-sm text-gray-500">
                 A summary of your hotel's current activity.
@@ -720,7 +720,7 @@ function AdminDashboard() {
 
                             <td className="px-4 py-4 lg:px-6">
                               <p className="truncate text-sm font-medium text-gray-800">
-                                {booking.room_name || "Hotel Room"}
+                                {booking.room_name || "Guesthouse Room"}
                               </p>
                               <p className="mt-1 text-xs text-gray-500">
                                 Room {booking.room_number ?? "—"}
@@ -788,7 +788,7 @@ function AdminDashboard() {
                               Room
                             </p>
                             <p className="mt-1 truncate text-sm font-medium text-gray-800">
-                              {booking.room_name || "Hotel Room"}
+                              {booking.room_name || "Guesthouse Room"}
                             </p>
                             <p className="text-xs text-gray-500">
                               Room {booking.room_number ?? "—"}
@@ -838,7 +838,7 @@ function AdminDashboard() {
           </section>
 
           <footer className="py-6 text-center text-xs text-gray-400">
-            Hotel Management System · Admin Dashboard
+            Heng LyLy Guesthouse · Admin Dashboard
           </footer>
         </div>
       </main>

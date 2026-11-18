@@ -18,9 +18,9 @@ function AuthLayout({ title, subtitle, image, children }) {
         <div className="relative flex h-full flex-col justify-between p-12 text-white">
           <Link to="/" className="flex items-center gap-3">
             <span className="grid h-10 w-10 place-items-center rounded-full border border-gold-400 font-display text-lg font-bold text-gold-400">
-              G
+              H
             </span>
-            <span className="font-display text-2xl font-semibold">Grand Hotel</span>
+            <span className="font-display text-2xl font-semibold">{t("brand.name")}</span>
           </Link>
 
           <div>
@@ -29,7 +29,7 @@ function AuthLayout({ title, subtitle, image, children }) {
               <br />
               {t("auth.quote2")}
             </p>
-            <p className="mt-4 text-gray-300">Grand Hotel</p>
+            <p className="mt-4 text-gray-300">{t("brand.name")}</p>
           </div>
         </div>
       </div>
@@ -42,9 +42,9 @@ function AuthLayout({ title, subtitle, image, children }) {
 
           <Link to="/" className="mb-10 flex items-center gap-3 lg:hidden">
             <span className="grid h-10 w-10 place-items-center rounded-full border border-gold-500 font-display text-lg font-bold text-gold-500">
-              G
+              H
             </span>
-            <span className="font-display text-2xl font-semibold text-ink">Grand Hotel</span>
+            <span className="font-display text-2xl font-semibold text-ink">{t("brand.name")}</span>
           </Link>
 
           <h1 className="text-4xl font-semibold text-ink">{title}</h1>

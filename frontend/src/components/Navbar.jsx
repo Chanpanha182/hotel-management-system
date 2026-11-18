@@ -67,14 +67,14 @@ function Navbar({ transparent = false }) {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3">
             <span className="grid h-10 w-10 place-items-center rounded-full border border-gold-500 font-display text-lg font-bold text-gold-500">
-              G
+              H
             </span>
             <span
               className={`font-display text-2xl font-semibold tracking-wide ${
                 solid ? "text-ink" : "text-white"
               }`}
             >
-              Grand Hotel
+              {t("brand.name")}
             </span>
           </Link>
 

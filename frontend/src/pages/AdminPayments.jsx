@@ -860,7 +860,7 @@ function AdminPayments() {
 
                           <td className="px-4 py-4 lg:px-6">
                             <p className="text-sm font-medium text-gray-900">
-                              {payment.room_name || "Hotel Room"}
+                              {payment.room_name || "Guesthouse Room"}
                             </p>
                             <p className="mt-0.5 text-xs text-gray-500">
                               Room {payment.room_number ?? "—"}
@@ -953,7 +953,7 @@ function AdminPayments() {
                           </span>
                           <div className="text-right">
                             <p className="font-medium text-gray-900">
-                              {payment.room_name || "Hotel Room"}
+                              {payment.room_name || "Guesthouse Room"}
                             </p>
                             <p className="text-xs text-gray-500">
                               Room {payment.room_number ?? "—"}

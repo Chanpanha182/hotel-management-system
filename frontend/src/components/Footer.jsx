@@ -12,10 +12,10 @@ function Footer() {
         <div className="md:col-span-2">
           <div className="flex items-center gap-3 mb-5">
             <span className="grid h-10 w-10 place-items-center rounded-full border border-gold-500 font-display text-lg font-bold text-gold-500">
-              G
+              H
             </span>
             <span className="font-display text-2xl font-semibold text-white">
-              Grand Hotel
+              {t("brand.name")}
             </span>
           </div>
 
@@ -66,7 +66,7 @@ function Footer() {
 
       <div className="border-t border-white/10">
         <p className="max-w-7xl mx-auto px-6 py-6 text-sm">
-          © {new Date().getFullYear()} Grand Hotel. {t("footer.rights")}
+          © {new Date().getFullYear()} {t("brand.name")}. {t("footer.rights")}
         </p>
       </div>
     </footer>

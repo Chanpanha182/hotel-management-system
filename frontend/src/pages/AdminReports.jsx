@@ -148,7 +148,7 @@ export default function AdminReports() {
 
   const downloadCSV = () => {
     const rows = [
-      ["Hotel Management System - Report"],
+      ["Heng LyLy Guesthouse - Report"],
       ["Start Date", startDate || "All dates"],
       ["End Date", endDate || "All dates"],
       [],
@@ -436,7 +436,7 @@ export default function AdminReports() {
           </section>
 
           <footer className="py-6 text-center text-xs text-gray-400">
-            Hotel Management System · Reports
+            Heng LyLy Guesthouse · Reports
           </footer>
         </div>
       </main>
