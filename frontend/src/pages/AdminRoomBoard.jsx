@@ -28,9 +28,9 @@ const STATUS = {
   },
   arriving: {
     label: "Arriving today",
-    dot: "bg-blue-500",
-    card: "border-blue-200 bg-blue-50",
-    badge: "bg-blue-100 text-blue-700",
+    dot: "bg-sky-500",
+    card: "border-sky-200 bg-sky-50",
+    badge: "bg-sky-100 text-sky-700",
   },
   occupied: {
     label: "Occupied",
@@ -388,7 +388,7 @@ function RoomTile({ room, busy, onCheckIn, onCheckOut, onClean, onMaintenance, t
 
         {!stay && arrival && arrival.booking_status === "confirmed" &&
           room.board_status !== "maintenance" && (
-            <ActionButton onClick={onCheckIn} disabled={busy} icon={LogIn} tone="blue">
+            <ActionButton onClick={onCheckIn} disabled={busy} icon={LogIn} tone="sky">
               Check in
             </ActionButton>
           )}
@@ -437,7 +437,7 @@ function GuestLine({ guest, text, warn }) {
 
 const TONES = {
   rose: "bg-rose-600 text-white hover:bg-rose-700",
-  blue: "bg-blue-600 text-white hover:bg-blue-700",
+  sky: "bg-sky-600 text-white hover:bg-sky-700",
   amber: "bg-amber-500 text-white hover:bg-amber-600",
   gray: "bg-gray-700 text-white hover:bg-gray-800",
   ghost: "bg-white/70 text-gray-600 ring-1 ring-black/10 hover:bg-white",
