@@ -5,6 +5,7 @@ const router = express.Router();
 const db = require("../config/db");
 const authMiddleware = require("../middleware/authMiddleware");
 const { sendBookingEmail } = require("../utils/email");
+const { notifyBooking } = require("../utils/telegram");
 const { REVIEWABLE_SQL } = require("./reviewRoutes");
 
 
@@ -184,6 +185,7 @@ router.post("/", authMiddleware, (req, res) => {
 
 
                         sendBookingEmail(result.insertId, "received");
+                        notifyBooking(result.insertId, "new");
 
                         res.status(201).json({
                             success: true,
@@ -346,6 +348,8 @@ router.put("/:id/cancel", authMiddleware, (req, res) => {
                             message: "Failed to cancel booking."
                         });
                     }
+
+                    notifyBooking(id, "cancelled_by_guest");
 
                     res.json({
                         success: true,

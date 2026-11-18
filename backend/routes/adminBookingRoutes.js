@@ -4,6 +4,7 @@ const router = express.Router();
 
 const db = require("../config/db");
 const adminMiddleware = require("../middleware/adminMiddleware");
+const { notifyBooking } = require("../utils/telegram");
 
 // GET /api/admin/bookings
 router.get("/", adminMiddleware, (req, res) => {
@@ -223,6 +224,11 @@ router.put("/:id/status", adminMiddleware, (req, res) => {
                         });
                     }
 
+
+                    // Tell staff on Telegram
+                    if (["checked_in", "checked_out", "cancelled"].includes(booking_status)) {
+                        notifyBooking(id, booking_status);
+                    }
 
                     // After check-out the room needs cleaning (Room Board)
                     if (booking_status === "checked_out") {
