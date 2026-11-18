@@ -14,6 +14,11 @@ async function sendEmail({ to, toName, subject, html }) {
         return;
     }
 
+    // Walk-in guests without an email have a placeholder address
+    if (!to || to.endsWith(".invalid")) {
+        return;
+    }
+
     try {
         const response = await fetch("https://api.brevo.com/v3/smtp/email", {
             method: "POST",

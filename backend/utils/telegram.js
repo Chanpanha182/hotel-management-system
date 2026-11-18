@@ -45,6 +45,7 @@ async function sendTelegramMessage(message) {
 // must not break the booking itself.
 const BOOKING_ALERTS = {
     new: { icon: "🛎️", title: "New booking" },
+    walk_in: { icon: "🚶", title: "Walk-in guest" },
     cancelled_by_guest: { icon: "❌", title: "Booking cancelled by guest" },
     cancelled: { icon: "❌", title: "Booking cancelled by staff" },
     checked_in: { icon: "🔑", title: "Guest checked in" },
@@ -68,6 +69,12 @@ async function notifyBooking(bookingId, event) {
                 DATEDIFF(bookings.check_out, bookings.check_in) AS nights,
                 bookings.guests,
                 bookings.total_amount,
+                bookings.booking_status,
+                (
+                    SELECT payment_status FROM payments
+                    WHERE payments.booking_id = bookings.id
+                    ORDER BY payments.id DESC LIMIT 1
+                ) AS payment_status,
                 users.name AS guest_name,
                 users.phone AS guest_phone,
                 rooms.room_name,
@@ -94,6 +101,11 @@ async function notifyBooking(bookingId, event) {
 
         if (event === "new" || event.startsWith("cancelled")) {
             lines.push(`Total: $${Number(b.total_amount).toFixed(2)}`);
+        }
+
+        if (event === "walk_in") {
+            lines.push(`Total: $${Number(b.total_amount).toFixed(2)} – ${b.payment_status === "paid" ? "paid" : "not paid yet"}`);
+            lines.push(b.booking_status === "checked_in" ? "Already checked in." : "Not checked in yet.");
         }
 
         await sendTelegramMessage(lines.join("\n"));

@@ -28,7 +28,7 @@ router.get("/", adminMiddleware, (req, res) => {
     const today = todayInCambodia();
 
     const roomsSql = `
-        SELECT id, room_number, room_name, room_type, capacity, status, housekeeping
+        SELECT id, room_number, room_name, room_type, price, capacity, status, housekeeping
         FROM rooms
         ORDER BY LENGTH(room_number), room_number
     `;
@@ -42,6 +42,7 @@ router.get("/", adminMiddleware, (req, res) => {
             DATE_FORMAT(bookings.check_in, '%Y-%m-%d') AS check_in,
             DATE_FORMAT(bookings.check_out, '%Y-%m-%d') AS check_out,
             bookings.guests,
+            bookings.source,
             users.name AS guest_name,
             users.phone AS guest_phone
         FROM bookings

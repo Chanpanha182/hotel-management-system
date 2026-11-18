@@ -20,6 +20,7 @@ const adminReportRoutes = require("./routes/adminReportRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
 const adminReviewRoutes = require("./routes/adminReviewRoutes");
 const adminRoomBoardRoutes = require("./routes/adminRoomBoardRoutes");
+const adminWalkInRoutes = require("./routes/adminWalkInRoutes");
 
 const app = express();
 
@@ -74,6 +75,7 @@ app.use("/api/admin/reports", adminReportRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/admin/reviews", adminReviewRoutes);
 app.use("/api/admin/room-board", adminRoomBoardRoutes);
+app.use("/api/admin/walk-in", adminWalkInRoutes);
 
 app.get("/", (req, res) => {
     res.json({
