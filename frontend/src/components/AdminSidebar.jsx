@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 
 import {
   LayoutDashboard,
+  LayoutGrid,
   BedDouble,
   CalendarCheck,
   Users,
@@ -32,6 +33,11 @@ function AdminSidebar() {
       name: "Dashboard",
       path: "/admin",
       icon: LayoutDashboard,
+    },
+    {
+      name: "Room Board",
+      path: "/admin/room-board",
+      icon: LayoutGrid,
     },
     {
       name: "Rooms",

@@ -87,6 +87,7 @@ router.put("/:id/status", adminMiddleware, (req, res) => {
     const selectSql = `
         SELECT
             id,
+            room_id,
             booking_status
         FROM bookings
         WHERE id = ?
@@ -222,6 +223,17 @@ router.put("/:id/status", adminMiddleware, (req, res) => {
                         });
                     }
 
+
+                    // After check-out the room needs cleaning (Room Board)
+                    if (booking_status === "checked_out") {
+                        db.query(
+                            "UPDATE rooms SET housekeeping = 'dirty' WHERE id = ?",
+                            [results[0].room_id],
+                            (err) => {
+                                if (err) console.error(err);
+                            }
+                        );
+                    }
 
                     res.json({
                         success: true,

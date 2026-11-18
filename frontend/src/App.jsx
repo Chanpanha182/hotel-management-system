@@ -19,6 +19,7 @@ import AdminReports from "./pages/AdminReports";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import AdminReviews from "./pages/AdminReviews";
+import AdminRoomBoard from "./pages/AdminRoomBoard";
 
 function App() {
   return (
@@ -62,6 +63,7 @@ function App() {
         {/* Admin pages: only logged-in admins */}
         <Route element={<AdminRoute />}>
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/room-board" element={<AdminRoomBoard />} />
           <Route path="/admin/rooms" element={<AdminRooms />} />
           <Route path="/admin/bookings" element={<AdminBookings />} />
           <Route path="/admin/users" element={<AdminUsers />} />
