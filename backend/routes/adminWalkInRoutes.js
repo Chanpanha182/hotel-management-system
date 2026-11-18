@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt");
 const router = express.Router();
 
 const db = require("../config/db");
-const adminMiddleware = require("../middleware/adminMiddleware");
+const staffMiddleware = require("../middleware/staffMiddleware");
 const { notifyBooking } = require("../utils/telegram");
 
 // Walk-in guests without an email get a placeholder address on this
@@ -72,7 +72,7 @@ async function findOrCreateGuest(conn, { name, phone, email }) {
 
 // POST /api/admin/walk-in
 // Book a room for a guest standing at the front desk.
-router.post("/", adminMiddleware, async (req, res) => {
+router.post("/", staffMiddleware, async (req, res) => {
 
     const name = String(req.body.guest_name || "").trim();
     const phone = String(req.body.guest_phone || "").trim();

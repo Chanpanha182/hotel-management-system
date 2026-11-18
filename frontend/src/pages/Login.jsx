@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "../components/AuthLayout";
 import { useLanguage } from "../i18n/useLanguage";
+import { staffHome } from "../utils/auth";
 
 function Login() {
   const { t } = useLanguage();
@@ -53,8 +54,8 @@ function Login() {
         JSON.stringify(data.user)
       );
 
-      // Go home
-      navigate("/");
+      // Receptionists start at the Room Board; everyone else goes home
+      navigate(data.user?.role === "receptionist" ? staffHome(data.user) : "/");
 
     } catch (error) {
       setError(error.message);

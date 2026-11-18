@@ -25,11 +25,13 @@ const API_URL = import.meta.env.VITE_API_URL + "/api/admin/users";
 
 const ROLES = [
   { value: "customer", label: "Customer" },
+  { value: "receptionist", label: "Receptionist" },
   { value: "admin", label: "Admin" },
 ];
 
 const ROLE_STYLES = {
   admin: "bg-violet-50 text-violet-700 ring-violet-600/20",
+  receptionist: "bg-sky-50 text-sky-700 ring-sky-600/20",
   customer: "bg-gray-100 text-gray-700 ring-gray-500/20",
 };
 
@@ -400,19 +402,31 @@ function AdminUsers() {
   const requestRoleChange = (user, role) => {
     if (role === user.role) return;
 
-    const promoting = role === "admin";
+    const texts = {
+      admin: {
+        title: "Make this user an admin?",
+        message: `${user.name} will get full access to the admin panel, including rooms, prices, reports, payments and other users.`,
+        confirmLabel: "Make Admin",
+      },
+      receptionist: {
+        title: "Make this user a receptionist?",
+        message: `${user.name} will be able to use the Room Board, book walk-in guests, check guests in and out, and confirm bookings and payments. They cannot change rooms, prices or users, refund payments, or see reports.`,
+        confirmLabel: "Make Receptionist",
+      },
+      customer: {
+        title: "Remove staff access?",
+        message: `${user.name} will become a regular customer and lose access to the staff pages right away.`,
+        confirmLabel: "Make Customer",
+      },
+    };
 
     setDialog({
       type: "role",
       user,
       role,
       icon: ShieldCheck,
-      tone: promoting ? "danger" : "neutral",
-      title: promoting ? "Make this user an admin?" : "Remove admin access?",
-      message: promoting
-        ? `${user.name} will get full access to the admin panel, including rooms, bookings, payments and other users.`
-        : `${user.name} will become a regular customer and lose access to the admin panel.`,
-      confirmLabel: promoting ? "Make Admin" : "Make Customer",
+      tone: role === "admin" ? "danger" : "neutral",
+      ...texts[role],
     });
   };
 
@@ -477,8 +491,9 @@ function AdminUsers() {
 
     return {
       total: users.length,
-      admins: users.filter((u) => u.role === "admin").length,
-      customers: users.filter((u) => u.role !== "admin").length,
+      admin: users.filter((u) => u.role === "admin").length,
+      receptionist: users.filter((u) => u.role === "receptionist").length,
+      customer: users.filter((u) => u.role !== "admin" && u.role !== "receptionist").length,
       newThisMonth,
     };
   }, [users]);
@@ -586,13 +601,13 @@ function AdminUsers() {
             />
             <StatCard
               label="Customers"
-              value={stats.customers}
+              value={stats.customer}
               icon={UserCheck}
               tone="bg-emerald-50 text-emerald-600"
             />
             <StatCard
-              label="Admins"
-              value={stats.admins}
+              label="Staff"
+              value={stats.admin + stats.receptionist}
               icon={ShieldCheck}
               tone="bg-violet-50 text-violet-600"
             />
@@ -624,15 +639,12 @@ function AdminUsers() {
                 {[
                   { value: "all", label: "All" },
                   { value: "customer", label: "Customers" },
+                  { value: "receptionist", label: "Receptionists" },
                   { value: "admin", label: "Admins" },
                 ].map((tab) => {
                   const active = roleFilter === tab.value;
                   const count =
-                    tab.value === "all"
-                      ? users.length
-                      : tab.value === "admin"
-                      ? stats.admins
-                      : stats.customers;
+                    tab.value === "all" ? users.length : stats[tab.value];
 
                   return (
                     <button

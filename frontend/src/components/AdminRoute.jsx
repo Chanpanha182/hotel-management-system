@@ -1,16 +1,9 @@
 import { Navigate, Outlet } from "react-router-dom";
+import { getStoredUser, isStaff, staffHome } from "../utils/auth";
 
-function getStoredUser() {
-  try {
-    return JSON.parse(localStorage.getItem("user"));
-  } catch {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    return null;
-  }
-}
-
-function AdminRoute() {
+// Pages for logged-in staff. `roles` lists who may open them;
+// other staff are sent to their own first page, customers to the site.
+function AdminRoute({ roles = ["admin"] }) {
   const token = localStorage.getItem("token");
   const user = getStoredUser();
 
@@ -18,8 +11,8 @@ function AdminRoute() {
     return <Navigate to="/login" replace />;
   }
 
-  if (user.role !== "admin") {
-    return <Navigate to="/" replace />;
+  if (!roles.includes(user.role)) {
+    return <Navigate to={isStaff(user) ? staffHome(user) : "/"} replace />;
   }
 
   return <Outlet />;

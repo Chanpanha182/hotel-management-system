@@ -16,6 +16,7 @@ import {
   Menu,
   X,
 } from "lucide-react";
+import { getStoredUser, isAdmin } from "../utils/auth";
 
 function AdminSidebar() {
   const navigate = useNavigate();
@@ -28,48 +29,22 @@ function AdminSidebar() {
     navigate("/login");
   };
 
-  const menuItems = [
-    {
-      name: "Dashboard",
-      path: "/admin",
-      icon: LayoutDashboard,
-    },
-    {
-      name: "Room Board",
-      path: "/admin/room-board",
-      icon: LayoutGrid,
-    },
-    {
-      name: "Rooms",
-      path: "/admin/rooms",
-      icon: BedDouble,
-    },
-    {
-      name: "Bookings",
-      path: "/admin/bookings",
-      icon: CalendarCheck,
-    },
-    {
-      name: "Users",
-      path: "/admin/users",
-      icon: Users,
-    },
-    {
-  name: "Payments",
-  path: "/admin/payments",
-  icon: CreditCard,
-},
-{
-  name: "Reviews",
-  path: "/admin/reviews",
-  icon: Star,
-},
-{
-  name: "Reports",
-  path: "/admin/reports",
-  icon: FileBarChart,
-},
+  const currentUser = getStoredUser();
+  const admin = isAdmin(currentUser);
+
+  // `staff: true` = receptionists see it too; the rest is admin-only
+  const allMenuItems = [
+    { name: "Dashboard", path: "/admin", icon: LayoutDashboard },
+    { name: "Room Board", path: "/admin/room-board", icon: LayoutGrid, staff: true },
+    { name: "Rooms", path: "/admin/rooms", icon: BedDouble },
+    { name: "Bookings", path: "/admin/bookings", icon: CalendarCheck, staff: true },
+    { name: "Users", path: "/admin/users", icon: Users },
+    { name: "Payments", path: "/admin/payments", icon: CreditCard, staff: true },
+    { name: "Reviews", path: "/admin/reviews", icon: Star },
+    { name: "Reports", path: "/admin/reports", icon: FileBarChart },
   ];
+
+  const menuItems = admin ? allMenuItems : allMenuItems.filter((item) => item.staff);
 
   const closeSidebar = () => {
     setIsOpen(false);
@@ -132,11 +107,11 @@ function AdminSidebar() {
 
               <div>
                 <h1 className="font-bold text-lg">
-                  Heng LyLy Admin
+                  {admin ? "Heng LyLy Admin" : "Heng LyLy Front Desk"}
                 </h1>
 
                 <p className="text-xs text-gray-400">
-                  Management System
+                  {admin ? "Management System" : `Receptionist · ${currentUser?.name || ""}`}
                 </p>
               </div>
             </div>

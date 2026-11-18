@@ -5,6 +5,7 @@ const km = {
   "nav.rooms": "បន្ទប់",
   "nav.myBookings": "ការកក់របស់ខ្ញុំ",
   "nav.admin": "អ្នកគ្រប់គ្រង",
+  "nav.frontDesk": "ផ្នែកទទួលភ្ញៀវ",
   "nav.login": "ចូលគណនី",
   "nav.bookNow": "កក់ឥឡូវនេះ",
   "nav.logout": "ចាកចេញ",

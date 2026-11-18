@@ -20,6 +20,7 @@ import {
 
 
 import AdminSidebar from "../components/AdminSidebar";
+import { isAdmin, isStaff, getStoredUser } from "../utils/auth";
 
 const API_URL = import.meta.env.VITE_API_URL + "/api/admin/payments";
 
@@ -83,12 +84,17 @@ function statusLabel(status) {
  *  - unpaid + cancelled booking        -> locked
  *  - pending / failed                  -> pending, paid or failed
  */
-function getPaymentControl(payment) {
+function getPaymentControl(payment, canRefund) {
   const status = payment.payment_status;
   const bookingCancelled = payment.booking_status === "cancelled";
 
   if (status === "refunded") {
     return { locked: true, label: "Refunded", tone: "blue" };
+  }
+
+  // Only admins can refund, so for receptionists a paid payment is final
+  if (status === "paid" && !canRefund) {
+    return { locked: true, label: "Paid", tone: "emerald" };
   }
 
   if (status === "paid") {
@@ -169,12 +175,13 @@ function StatCard({ label, value, hint, icon: Icon, tone, valueTone }) {
 }
 
 function PaymentControl({ payment, updating, onChange, fullWidth = false }) {
-  const control = getPaymentControl(payment);
+  const control = getPaymentControl(payment, isAdmin(getStoredUser()));
 
   if (control.locked) {
     const tones = {
       blue: "bg-blue-50 text-blue-600",
       rose: "bg-rose-50 text-rose-600",
+      emerald: "bg-emerald-50 text-emerald-700",
     };
 
     return (
@@ -436,7 +443,7 @@ function AdminPayments() {
       return;
     }
 
-    if (user?.role !== "admin") {
+    if (!isStaff(user)) {
       navigate("/");
       return;
     }

@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 
 import AdminSidebar from "../components/AdminSidebar";
+import { isStaff } from "../utils/auth";
 
 const API_URL = import.meta.env.VITE_API_URL + "/api/admin/bookings";
 
@@ -374,7 +375,7 @@ function AdminBookings() {
       return;
     }
 
-    if (user?.role !== "admin") {
+    if (!isStaff(user)) {
       navigate("/");
       return;
     }

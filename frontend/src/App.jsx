@@ -60,14 +60,18 @@ function App() {
           element={<MyBookings />}
         />
 
-        {/* Admin pages: only logged-in admins */}
+        {/* Front-desk pages: admins and receptionists */}
+        <Route element={<AdminRoute roles={["admin", "receptionist"]} />}>
+          <Route path="/admin/room-board" element={<AdminRoomBoard />} />
+          <Route path="/admin/bookings" element={<AdminBookings />} />
+          <Route path="/admin/payments" element={<AdminPayments />} />
+        </Route>
+
+        {/* Owner pages: admins only */}
         <Route element={<AdminRoute />}>
           <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/room-board" element={<AdminRoomBoard />} />
           <Route path="/admin/rooms" element={<AdminRooms />} />
-          <Route path="/admin/bookings" element={<AdminBookings />} />
           <Route path="/admin/users" element={<AdminUsers />} />
-          <Route path="/admin/payments" element={<AdminPayments />} />
           <Route path="/admin/reports" element={<AdminReports />} />
           <Route path="/admin/reviews" element={<AdminReviews />} />
         </Route>

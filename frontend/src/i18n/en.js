@@ -5,6 +5,7 @@ const en = {
   "nav.rooms": "Rooms",
   "nav.myBookings": "My Bookings",
   "nav.admin": "Admin",
+  "nav.frontDesk": "Front Desk",
   "nav.login": "Login",
   "nav.bookNow": "Book Now",
   "nav.logout": "Logout",

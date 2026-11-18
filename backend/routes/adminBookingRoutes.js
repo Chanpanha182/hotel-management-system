@@ -3,11 +3,11 @@ const express = require("express");
 const router = express.Router();
 
 const db = require("../config/db");
-const adminMiddleware = require("../middleware/adminMiddleware");
+const staffMiddleware = require("../middleware/staffMiddleware");
 const { notifyBooking } = require("../utils/telegram");
 
 // GET /api/admin/bookings
-router.get("/", adminMiddleware, (req, res) => {
+router.get("/", staffMiddleware, (req, res) => {
 
     const sql = `
         SELECT
@@ -61,7 +61,7 @@ router.get("/", adminMiddleware, (req, res) => {
 
 
 // PUT /api/admin/bookings/:id/status
-router.put("/:id/status", adminMiddleware, (req, res) => {
+router.put("/:id/status", staffMiddleware, (req, res) => {
 
     const { id } = req.params;
     const { booking_status } = req.body;

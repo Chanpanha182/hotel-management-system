@@ -3,6 +3,7 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Menu, X, LogOut, User } from "lucide-react";
 import LanguageSwitch from "./LanguageSwitch";
 import { useLanguage } from "../i18n/useLanguage";
+import { isAdmin, isStaff, staffHome } from "../utils/auth";
 
 // transparent: sits over a hero image until the page is scrolled
 function Navbar({ transparent = false }) {
@@ -49,7 +50,9 @@ function Navbar({ transparent = false }) {
     { to: "/", label: t("nav.home"), end: true },
     { to: "/rooms", label: t("nav.rooms") },
     ...(user ? [{ to: "/my-bookings", label: t("nav.myBookings") }] : []),
-    ...(user?.role === "admin" ? [{ to: "/admin", label: t("nav.admin") }] : []),
+    ...(isStaff(user)
+      ? [{ to: staffHome(user), label: isAdmin(user) ? t("nav.admin") : t("nav.frontDesk") }]
+      : []),
   ];
 
   return (

@@ -3,7 +3,7 @@ const express = require("express");
 const router = express.Router();
 
 const db = require("../config/db");
-const adminMiddleware = require("../middleware/adminMiddleware");
+const staffMiddleware = require("../middleware/staffMiddleware");
 
 // Today's date in Cambodia (the server runs in UTC), as YYYY-MM-DD
 function todayInCambodia() {
@@ -23,7 +23,7 @@ function boardStatus(room, stay, arrival) {
 
 // GET /api/admin/room-board
 // Every room with its live status, current guest and next arrival.
-router.get("/", adminMiddleware, (req, res) => {
+router.get("/", staffMiddleware, (req, res) => {
 
     const today = todayInCambodia();
 
@@ -99,7 +99,7 @@ router.get("/", adminMiddleware, (req, res) => {
 
 
 // PUT /api/admin/room-board/:id/housekeeping  { housekeeping: "clean" | "dirty" }
-router.put("/:id/housekeeping", adminMiddleware, (req, res) => {
+router.put("/:id/housekeeping", staffMiddleware, (req, res) => {
 
     const { housekeeping } = req.body;
 
@@ -128,7 +128,7 @@ router.put("/:id/housekeeping", adminMiddleware, (req, res) => {
 
 
 // PUT /api/admin/room-board/:id/maintenance  { maintenance: true | false }
-router.put("/:id/maintenance", adminMiddleware, (req, res) => {
+router.put("/:id/maintenance", staffMiddleware, (req, res) => {
 
     const status = req.body.maintenance ? "maintenance" : "available";
 

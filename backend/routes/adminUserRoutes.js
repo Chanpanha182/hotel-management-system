@@ -48,7 +48,7 @@ router.put("/:id/role", adminMiddleware, (req, res) => {
     const { id } = req.params;
     const { role } = req.body;
 
-    if (!["customer", "admin"].includes(role)) {
+    if (!["customer", "receptionist", "admin"].includes(role)) {
 
         return res.status(400).json({
             success: false,

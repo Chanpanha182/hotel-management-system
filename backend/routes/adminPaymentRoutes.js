@@ -4,14 +4,14 @@ const router = express.Router();
 const { sendBookingEmail } = require("../utils/email");
 
 const db = require("../config/db");
-const adminMiddleware = require("../middleware/adminMiddleware");
+const staffMiddleware = require("../middleware/staffMiddleware");
 
 
 // ======================================================
 // GET ALL PAYMENTS
 // ======================================================
 
-router.get("/", adminMiddleware, (req, res) => {
+router.get("/", staffMiddleware, (req, res) => {
 
     const sql = `
         SELECT
@@ -69,7 +69,7 @@ router.get("/", adminMiddleware, (req, res) => {
 // UPDATE PAYMENT STATUS
 // ======================================================
 
-router.put("/:id/status", adminMiddleware, (req, res) => {
+router.put("/:id/status", staffMiddleware, (req, res) => {
 
     const { id } = req.params;
     const { payment_status } = req.body;
@@ -92,6 +92,15 @@ router.put("/:id/status", adminMiddleware, (req, res) => {
         return res.status(400).json({
             success: false,
             message: "Invalid payment status."
+        });
+    }
+
+    // Giving money back is an owner decision
+    if (payment_status === "refunded" && req.user.role !== "admin") {
+
+        return res.status(403).json({
+            success: false,
+            message: "Only an admin can refund a payment."
         });
     }
 
