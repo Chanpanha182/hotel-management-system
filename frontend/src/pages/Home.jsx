@@ -2,10 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Wifi,
-  UtensilsCrossed,
-  Waves,
   Car,
-  Sparkles,
   ConciergeBell,
   CalendarDays,
   Users,
@@ -20,11 +17,7 @@ const today = new Date().toISOString().split("T")[0];
 
 const amenities = [
   { icon: Wifi, key: "wifi" },
-  { icon: UtensilsCrossed, key: "restaurant" },
-  { icon: Waves, key: "pool" },
-  { icon: Sparkles, key: "spa" },
-  { icon: Car, key: "transfer" },
-  { icon: ConciergeBell, key: "reception" },
+  { icon: Car, key: "parking" },
 ];
 
 function Home() {
@@ -249,7 +242,7 @@ function Home() {
             </h2>
           </div>
 
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mx-auto grid max-w-4xl gap-6 sm:grid-cols-2">
             {amenities.map(({ icon: Icon, key }) => (
               <div
                 key={key}
